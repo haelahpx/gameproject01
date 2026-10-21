@@ -9,9 +9,9 @@ Build Complete Indonesian Kampung Kos & Gang Environment v5:
   got slabs, AC compressors, KWH meters, shoe racks with sandals, doormats, and water tower.
 """
 
-import bpy
-import bmesh
-import mathutils
+import bpy  # pyrefly: ignore[missing-import] # type: ignore
+import bmesh  # pyrefly: ignore[missing-import] # type: ignore
+import mathutils  # pyrefly: ignore[missing-import] # type: ignore
 import math
 import os
 
@@ -66,6 +66,62 @@ def create_mat(name, color, roughness=0.7, metallic=0.0, emission=None, emission
             if 'Emission Strength' in bsdf.inputs:
                 bsdf.inputs['Emission Strength'].default_value = emission_strength
     return mat
+
+def create_tile_texture_mat(name, width=128, height=128, tile_size=32, grout_px=2, roughness=0.18):
+    img_name = f"{name}_Img"
+    img = bpy.data.images.get(img_name)
+    if not img:
+        img = bpy.data.images.new(img_name, width=width, height=height)
+    
+    pixels = [1.0] * (width * height * 4)
+    for y in range(height):
+        for x in range(width):
+            idx = (y * width + x) * 4
+            is_grout = (x % tile_size < grout_px) or (y % tile_size < grout_px)
+            if is_grout:
+                pixels[idx] = 0.50
+                pixels[idx+1] = 0.52
+                pixels[idx+2] = 0.55
+                pixels[idx+3] = 1.0
+            else:
+                dist_x = min(x % tile_size - grout_px, tile_size - (x % tile_size))
+                dist_y = min(y % tile_size - grout_px, tile_size - (y % tile_size))
+                edge = min(dist_x, dist_y)
+                val = 0.92 if edge < 2 else 0.97
+                pixels[idx] = val
+                pixels[idx+1] = val
+                pixels[idx+2] = val * 0.99
+                pixels[idx+3] = 1.0
+    img.pixels = pixels
+    img.pack()
+    
+    mat = bpy.data.materials.get(name)
+    if not mat:
+        mat = bpy.data.materials.new(name=name)
+    mat.use_nodes = True
+    nodes = mat.node_tree.nodes
+    nodes.clear()
+    
+    bsdf = nodes.new('ShaderNodeBsdfPrincipled')
+    bsdf.inputs['Roughness'].default_value = roughness
+    
+    tex_node = nodes.new('ShaderNodeTexImage')
+    tex_node.image = img
+    
+    output = nodes.new('ShaderNodeOutputMaterial')
+    
+    mat.node_tree.links.new(tex_node.outputs['Color'], bsdf.inputs['Base Color'])
+    mat.node_tree.links.new(bsdf.outputs['BSDF'], output.inputs['Surface'])
+    return mat
+
+def scale_uv(obj, uv_scale_x=1.0, uv_scale_y=1.0):
+    if obj and obj.type == 'MESH' and obj.data.uv_layers:
+        uv_layer = obj.data.uv_layers.active
+        if uv_layer:
+            for loop in obj.data.loops:
+                uv = uv_layer.data[loop.index].uv
+                uv[0] *= uv_scale_x
+                uv[1] *= uv_scale_y
 
 def get_col(name):
     c = bpy.data.collections.get(name)
@@ -301,7 +357,7 @@ def add_tv_antenna(name, pos, height=2.0, col_name="GangHouses"):
         add_box(f"{name}_Elem_{dy}", (x, y + 0.45 + dy, z + height), (ew, 0.02, 0.02), "kost_railing_metal", col_name)
 
 def build_all():
-    print("Rebuilding Indonesian Kampung Kos with Clean, Unobstructed Architecture v5...")
+    print("Rebuilding Indonesian Kampung Kos with Warung Kondang, Unified Facade Windows & Sliding Gates v6...")
     clear_scene()
 
     # ─── 1. MATERIALS PALETTE ───
@@ -331,6 +387,14 @@ def build_all():
     create_mat("warsun_tile_floor", (0.88, 0.85, 0.80), roughness=0.6)
     create_mat("stainless_tray", (0.75, 0.77, 0.80), roughness=0.2, metallic=0.8)
 
+    # Authentic Warteg Materials (White Ceramic Tiles with Nat & WKB Green)
+    create_tile_texture_mat("warteg_tile_floor", width=128, height=128, tile_size=32, grout_px=2, roughness=0.18)
+    create_tile_texture_mat("warteg_tile_wall", width=128, height=128, tile_size=32, grout_px=2, roughness=0.18)
+    create_mat("warteg_tile_white", (0.96, 0.96, 0.97), roughness=0.18)
+    create_mat("warteg_green", (0.10, 0.48, 0.22), roughness=0.35)
+    create_mat("warteg_wall_upper", (0.93, 0.90, 0.84), roughness=0.80)
+    create_mat("warteg_pitcher_pink", (0.92, 0.22, 0.52), roughness=0.30)
+
     # Road & Infrastructure
     create_mat("road_asphalt", (0.16, 0.16, 0.18), roughness=0.90)
     create_mat("road_asphalt_dark", (0.10, 0.10, 0.12), roughness=0.85)
@@ -348,6 +412,15 @@ def build_all():
     create_mat("tin_roof", (0.48, 0.50, 0.52), roughness=0.5, metallic=0.4)
     create_mat("tile_roof_brown", (0.42, 0.18, 0.10), roughness=0.85)
     create_mat("roof_ridge_dark", (0.28, 0.12, 0.06), roughness=0.85)
+
+    # Unique Fence Materials for Distinct House Styles
+    create_mat("fence_wood_slat", (0.46, 0.26, 0.12), roughness=0.7)       # Warm conwood teak wood
+    create_mat("fence_white_wood", (0.94, 0.94, 0.91), roughness=0.6)      # Pure white painted wood
+    create_mat("fence_emerald_green", (0.10, 0.28, 0.20), roughness=0.45, metallic=0.6) # Deep emerald/sage green
+    create_mat("fence_terracotta", (0.75, 0.36, 0.18), roughness=0.85)     # Warm clay roster terracotta
+    create_mat("fence_bronze", (0.42, 0.28, 0.18), roughness=0.35, metallic=0.8) # Metallic dark bronze
+    create_mat("fence_gold_accent", (0.86, 0.70, 0.22), roughness=0.3, metallic=0.9) # Brass/gold spear tips
+    create_mat("fence_stone_base", (0.32, 0.33, 0.35), roughness=0.9)      # Textured river stone
 
     # House Colors
     create_mat("wall_tosca", (0.24, 0.52, 0.48), roughness=0.8)
@@ -379,17 +452,20 @@ def build_all():
     create_mat("laptop_screen", (0.75, 0.85, 0.95), roughness=0.2, emission=(0.75, 0.85, 0.95), emission_strength=2.0)
     create_mat("tikar_mat", (0.70, 0.60, 0.40), roughness=0.9)
 
-    # Food materials
-    create_mat("dish_ayam_goreng", (0.42, 0.22, 0.08), roughness=0.8)
-    create_mat("dish_telur_balado", (0.82, 0.14, 0.08), roughness=0.6)
-    create_mat("dish_tempe_orek", (0.32, 0.16, 0.07), roughness=0.7)
-    create_mat("dish_sayur_hijau", (0.14, 0.50, 0.12), roughness=0.7)
-    create_mat("dish_mie_kuning", (0.85, 0.70, 0.18), roughness=0.7)
+    # Food & Warteg materials
+    create_mat("warteg_green", (0.12, 0.48, 0.28), roughness=0.6)
+    create_mat("kerupuk_kaleng_blue", (0.12, 0.35, 0.75), roughness=0.4, metallic=0.5)
+    create_mat("kerupuk_kaleng_red", (0.80, 0.16, 0.12), roughness=0.4, metallic=0.5)
+    create_mat("magic_com_white", (0.92, 0.92, 0.90), roughness=0.3)
+    create_mat("dish_ayam_goreng", (0.75, 0.48, 0.12), roughness=0.85)
+    create_mat("dish_telur_balado", (0.85, 0.15, 0.08), roughness=0.6)
+    create_mat("dish_tempe_orek", (0.35, 0.18, 0.08), roughness=0.7)
+    create_mat("dish_sayur_hijau", (0.12, 0.52, 0.15), roughness=0.6)
+    create_mat("dish_mie_kuning", (0.88, 0.72, 0.18), roughness=0.7)
     create_mat("dish_sayur_lodeh", (0.82, 0.65, 0.32), roughness=0.5)
-    create_mat("dish_ayam_bakar", (0.20, 0.10, 0.05), roughness=0.8)
+    create_mat("dish_perkedel", (0.68, 0.50, 0.22), roughness=0.9)
     create_mat("dish_terong_balado", (0.60, 0.10, 0.22), roughness=0.6)
     create_mat("dish_sambal_ijo", (0.16, 0.55, 0.14), roughness=0.6)
-    create_mat("kerupuk_kaleng_blue", (0.12, 0.35, 0.75), roughness=0.4, metallic=0.5)
 
     # ─── 2. GROUND, ROAD & STREET INFRASTRUCTURE ───
     add_box("World_Grass_Ground-col", (0.0, 3.0, -0.12), (90.0, 70.0, 0.15), "grass_lawn", "GangEnvironment")
@@ -409,21 +485,39 @@ def build_all():
     for pi, (px, py, pw, pl, pmat) in enumerate(road_patches):
         add_box(f"Road_Patch_{pi}", (px, py, 0.002), (pw, pl, 0.004), pmat, "GangRoad")
 
-    for i, curbx in enumerate(range(-30, 26, 2)):
-        cmat = "curb_black" if i % 2 == 0 else "curb_white"
-        add_box(f"Curb_N_{i}-col", (float(curbx), 2.05, 0.05), (2.0, 0.15, 0.10), cmat, "GangRoad")
-        add_box(f"Curb_S_{i}-col", (float(curbx), -2.05, 0.05), (2.0, 0.15, 0.10), cmat, "GangRoad")
+    def build_curb_segment(prefix, x_start, x_end, y_pos, block_len=1.0):
+        total_len = x_end - x_start
+        if total_len <= 0.05:
+            return
+        n_blocks = max(1, int(round(total_len / block_len)))
+        actual_len = total_len / n_blocks
+        for i in range(n_blocks):
+            bx = x_start + (i + 0.5) * actual_len
+            color_idx = int(round(bx / 1.0))
+            cmat = "curb_black" if color_idx % 2 == 0 else "curb_white"
+            add_box(f"{prefix}_{i}_{bx:.2f}-col", (bx, y_pos, 0.05), (actual_len, 0.125, 0.10), cmat, "GangRoad")
+
+    # North curbs: stops before Kost columns, open gate driveway, pole, and teleport gate
+    build_curb_segment("Curb_N_A", -30.0, -8.15, 2.0375)
+    build_curb_segment("Curb_N_B", -7.65, -3.85, 2.0375)
+    build_curb_segment("Curb_N_C", 3.85, 7.65, 2.0375)
+    build_curb_segment("Curb_N_D", 8.50, 19.85, 2.0375)
+
+    # South curbs: stops before House 5 & 6 gates, and teleport pole
+    build_curb_segment("Curb_S_A", -30.0, -19.40, -2.0375)
+    build_curb_segment("Curb_S_B", -17.80, 15.85, -2.0375)
+    build_curb_segment("Curb_S_C", 17.35, 19.85, -2.0375)
 
     add_box("Gang_Drain_North", (-3.0, 1.94, -0.01), (60.0, 0.08, 0.04), "drain_trench", "GangRoad")
     add_box("Gang_Drain_South", (-3.0, -1.94, -0.01), (60.0, 0.08, 0.04), "drain_trench", "GangRoad")
 
     for si, gx in enumerate([-22.0, -15.0, -8.0, 1.0, 8.0, 15.0]):
-        add_box(f"Got_Slab_N_{si}", (gx, 1.94, 0.01), (1.2, 0.14, 0.03), "got_slab", "GangRoad")
-        add_box(f"Got_Slot_N_{si}_1", (gx - 0.25, 1.94, 0.02), (0.20, 0.04, 0.02), "drain_trench", "GangRoad")
-        add_box(f"Got_Slot_N_{si}_2", (gx + 0.25, 1.94, 0.02), (0.20, 0.04, 0.02), "drain_trench", "GangRoad")
-        add_box(f"Got_Slab_S_{si}", (gx, -1.94, 0.01), (1.2, 0.14, 0.03), "got_slab", "GangRoad")
-        add_box(f"Got_Slot_S_{si}_1", (gx - 0.25, -1.94, 0.02), (0.20, 0.04, 0.02), "drain_trench", "GangRoad")
-        add_box(f"Got_Slot_S_{si}_2", (gx + 0.25, -1.94, 0.02), (0.20, 0.04, 0.02), "drain_trench", "GangRoad")
+        add_box(f"Got_Slab_N_{si}", (gx, 1.9175, 0.01), (1.2, 0.115, 0.03), "got_slab", "GangRoad")
+        add_box(f"Got_Slot_N_{si}_1", (gx - 0.25, 1.9175, 0.02), (0.20, 0.04, 0.02), "drain_trench", "GangRoad")
+        add_box(f"Got_Slot_N_{si}_2", (gx + 0.25, 1.9175, 0.02), (0.20, 0.04, 0.02), "drain_trench", "GangRoad")
+        add_box(f"Got_Slab_S_{si}", (gx, -1.9175, 0.01), (1.2, 0.115, 0.03), "got_slab", "GangRoad")
+        add_box(f"Got_Slot_S_{si}_1", (gx - 0.25, -1.9175, 0.02), (0.20, 0.04, 0.02), "drain_trench", "GangRoad")
+        add_box(f"Got_Slot_S_{si}_2", (gx + 0.25, -1.9175, 0.02), (0.20, 0.04, 0.02), "drain_trench", "GangRoad")
 
     for sbi, bx in enumerate([-12.0, 6.0]):
         add_box(f"Polisi_Tidur_{sbi}-col", (bx, 0.0, 0.04), (0.40, 3.8, 0.08), "kost_dark_grey", "GangRoad")
@@ -464,30 +558,27 @@ def build_all():
     add_box("Kost_R_OuterWall-col", (8.05, 10.1, 3.0), (0.2, 15.8, 6.0), "kost_wall_white", "KostBuilding")
     add_box("Kost_B_OuterWall-col", (0.0, 18.05, 3.0), (16.3, 0.2, 6.0), "kost_wall_white", "KostBuilding")
 
-    # Front Wall Floor 1 Left (Player Street Window - CRYSTAL CLEAR GLASS)
-    add_box("Kost_L_FrontWall_F1_L-col", (-7.2, 2.2, 1.5), (1.5, 0.2, 3.0), "kost_wall_white", "KostBuilding")
-    add_box("Kost_L_FrontWall_F1_R-col", (-4.3, 2.2, 1.5), (1.5, 0.2, 3.0), "kost_wall_white", "KostBuilding")
-    add_box("Kost_L_FrontWall_F1_Sill-col", (-5.75, 2.2, 0.5), (1.4, 0.2, 1.0), "kost_wall_white", "KostBuilding")
-    add_box("Kost_L_FrontWall_F1_Lintel-col", (-5.75, 2.2, 2.6), (1.4, 0.2, 0.8), "kost_wall_white", "KostBuilding")
-    add_box("Player_WinStreet_Frame_Bottom", (-5.75, 2.2, 1.03), (1.42, 0.16, 0.06), "kost_dark_grey", "KostBuilding")
-    add_box("Player_WinStreet_Frame_Top", (-5.75, 2.2, 2.17), (1.42, 0.16, 0.06), "kost_dark_grey", "KostBuilding")
-    add_box("Player_WinStreet_Frame_L", (-6.42, 2.2, 1.6), (0.06, 0.16, 1.10), "kost_dark_grey", "KostBuilding")
-    add_box("Player_WinStreet_Frame_R", (-5.08, 2.2, 1.6), (0.06, 0.16, 1.10), "kost_dark_grey", "KostBuilding")
-    add_box("Player_WinStreet_Frame_Mid", (-5.75, 2.2, 1.6), (0.04, 0.16, 1.10), "kost_dark_grey", "KostBuilding")
-    add_box("Player_Window_Street_Glass", (-5.75, 2.2, 1.6), (1.34, 0.02, 1.10), "window_glass_transparent", "KostBuilding")
+    # Front Wall Facade Windows (Unified Architecture matching Player Room Street Window!)
+    def add_kos_front_window(name_prefix, cx, cy, cz_base):
+        # Wall Cutouts
+        add_box(f"{name_prefix}_Wall_L-col", (cx - 1.475, cy, cz_base + 1.5), (1.55, 0.2, 3.0), "kost_wall_white", "KostBuilding")
+        add_box(f"{name_prefix}_Wall_R-col", (cx + 1.475, cy, cz_base + 1.5), (1.55, 0.2, 3.0), "kost_wall_white", "KostBuilding")
+        add_box(f"{name_prefix}_Wall_Sill-col", (cx, cy, cz_base + 0.5), (1.4, 0.2, 1.0), "kost_wall_white", "KostBuilding")
+        add_box(f"{name_prefix}_Wall_Lintel-col", (cx, cy, cz_base + 2.6), (1.4, 0.2, 0.8), "kost_wall_white", "KostBuilding")
+        
+        # Aluminum detailed frame & mullions
+        add_box(f"{name_prefix}_Frame_Bottom", (cx, cy, cz_base + 1.03), (1.42, 0.16, 0.06), "kost_dark_grey", "KostBuilding")
+        add_box(f"{name_prefix}_Frame_Top", (cx, cy, cz_base + 2.17), (1.42, 0.16, 0.06), "kost_dark_grey", "KostBuilding")
+        add_box(f"{name_prefix}_Frame_L", (cx - 0.67, cy, cz_base + 1.6), (0.06, 0.16, 1.10), "kost_dark_grey", "KostBuilding")
+        add_box(f"{name_prefix}_Frame_R", (cx + 0.67, cy, cz_base + 1.6), (0.06, 0.16, 1.10), "kost_dark_grey", "KostBuilding")
+        add_box(f"{name_prefix}_Frame_Mid", (cx, cy, cz_base + 1.6), (0.04, 0.16, 1.10), "kost_dark_grey", "KostBuilding")
+        add_box(f"{name_prefix}_Glass", (cx, cy, cz_base + 1.6), (1.34, 0.02, 1.10), "window_glass_transparent", "KostBuilding")
 
-    # Front Wall F2 Windows (Frosted/Blurred Privacy Glass)
-    add_box("Kost_L_FrontWall_F2-col", (-5.75, 2.2, 4.5), (4.5, 0.2, 3.0), "kost_wall_white", "KostBuilding")
-    add_box("Kost_L_Window_F2_Frame", (-5.75, 2.15, 4.6), (1.2, 0.12, 1.2), "kost_dark_grey", "KostBuilding")
-    add_box("Kost_L_Window_F2_Glass", (-5.75, 2.15, 4.6), (1.05, 0.05, 1.05), "glass_frosted", "KostBuilding")
-
-    add_box("Kost_R_FrontWall_F1-col", (5.75, 2.2, 1.5), (4.5, 0.2, 3.0), "kost_wall_white", "KostBuilding")
-    add_box("Kost_R_Window_F1_Frame", (5.75, 2.15, 1.6), (1.2, 0.12, 1.2), "kost_dark_grey", "KostBuilding")
-    add_box("Kost_R_Window_F1_Glass", (5.75, 2.15, 1.6), (1.05, 0.05, 1.05), "glass_frosted", "KostBuilding")
-
-    add_box("Kost_R_FrontWall_F2-col", (5.75, 2.2, 4.5), (4.5, 0.2, 3.0), "kost_wall_white", "KostBuilding")
-    add_box("Kost_R_Window_F2_Frame", (5.75, 2.15, 4.6), (1.2, 0.12, 1.2), "kost_dark_grey", "KostBuilding")
-    add_box("Kost_R_Window_F2_Glass", (5.75, 2.15, 4.6), (1.05, 0.05, 1.05), "glass_frosted", "KostBuilding")
+    # All 4 front facade windows are now 100% unified in framing, depth, and glass!
+    add_kos_front_window("Player_WinStreet", -5.75, 2.2, 0.0)
+    add_kos_front_window("Kost_L_Win_F2", -5.75, 2.2, 3.0)
+    add_kos_front_window("Kost_R_Win_F1", 5.75, 2.2, 0.0)
+    add_kos_front_window("Kost_R_Win_F2", 5.75, 2.2, 3.0)
 
     add_box("Kost_L_Col_Front-col", (-7.9, 2.2, 3.0), (0.5, 0.4, 6.0), "kost_concrete_grey", "KostBuilding")
     add_box("Kost_L_Col_Inner-col", (-3.6, 2.2, 3.0), (0.5, 0.4, 6.0), "kost_concrete_grey", "KostBuilding")
@@ -642,7 +733,7 @@ def build_all():
     add_cylinder("Toren_Lid", (0.0, 16.2, 9.4), 0.45, 0.15, "kost_dark_grey", "KostBuilding")
     add_cylinder("Toren_Pipe_PVC", (0.8, 15.8, 5.0), 0.04, 5.0, "pvc_blue", "KostBuilding", vertices=6)
 
-    # ─── 6. MONUMENTAL ENTRANCE PANEL "KOST WINDAH" WITH 3D TEXT ───
+    # ─── 6. MONUMENTAL ENTRANCE PANEL "KOST KONDANG" WITH 3D TEXT ───
     add_box("Kost_Front_Wall-col", (5.75, 2.2, 0.8), (4.5, 0.25, 1.6), "kost_concrete_grey", "KostBuilding")
 
     add_box("Kost_Sign_Base-col", (0.0, 2.2, 0.08), (3.6, 0.30, 0.16), "kost_dark_grey", "KostBuilding")
@@ -678,9 +769,9 @@ def build_all():
             curve.materials.append(mat)
         return obj
 
-    create_3d_text("Sign_Text_Kost_Windah_Front", "KOST WINDAH", (0.0, 2.04, 1.12), (math.radians(90), 0, 0), size=0.30, extrude=0.04)
+    create_3d_text("Sign_Text_Kost_Windah_Front", "KOST KONDANG", (0.0, 2.04, 1.12), (math.radians(90), 0, 0), size=0.30, extrude=0.04)
     create_3d_text("Sign_Subtext_Front", "PUTRA & PUTRI", (0.0, 2.04, 0.72), (math.radians(90), 0, 0), size=0.14, extrude=0.02)
-    create_3d_text("Sign_Text_Kost_Windah_Back", "KOST WINDAH", (0.0, 2.36, 1.12), (math.radians(90), 0, math.radians(180)), size=0.30, extrude=0.04)
+    create_3d_text("Sign_Text_Kost_Windah_Back", "KOST KONDANG", (0.0, 2.36, 1.12), (math.radians(90), 0, math.radians(180)), size=0.30, extrude=0.04)
     create_3d_text("Sign_Subtext_Back", "PUTRA & PUTRI", (0.0, 2.36, 0.72), (math.radians(90), 0, math.radians(180)), size=0.14, extrude=0.02)
 
     # ─── 7. REALISTIC PLAYER ROOM INTERIOR & PLN TOKEN METER ───
@@ -769,67 +860,243 @@ def build_all():
     make_motorbike_x_aligned("Motor_Black", (1.5, 6.75, 0.0), "motor_body_black")
     make_motorbike_x_aligned("Motor_Red", (1.5, 8.25, 0.0), "motor_body_red")
 
-    # ─── 10. WARSUN BAHARI ───
-    add_box("Warsun_Floor-col", (13.0, 6.35, 0.05), (9.0, 8.3, 0.1), "warsun_tile_floor", "WarsunBuilding")
-    add_box("Warsun_BackWall-col", (13.0, 10.55, 1.8), (9.2, 0.2, 3.6), "warsun_orange", "WarsunBuilding")
-    add_box("Warsun_RightWall-col", (17.55, 6.35, 1.8), (0.2, 8.4, 3.6), "warsun_orange", "WarsunBuilding")
-    add_box("Warsun_LeftWall-col", (8.45, 6.35, 1.8), (0.2, 8.4, 3.6), "kost_wall_white", "WarsunBuilding")
-    add_box("Warsun_Roof-col", (13.0, 6.35, 3.75), (9.4, 8.8, 0.25), "tin_roof", "WarsunBuilding")
-    add_box("Warsun_Canopy-col", (13.0, 2.2, 3.1), (9.2, 2.0, 0.1), "tin_roof", "WarsunBuilding")
-    add_cylinder("Warsun_Post_L", (8.6, 1.3, 1.5), 0.05, 3.0, "kost_dark_grey", "WarsunBuilding")
-    add_cylinder("Warsun_Post_R", (17.4, 1.3, 1.5), 0.05, 3.0, "kost_dark_grey", "WarsunBuilding")
-    
-    add_box("Warsun_Banner", (13.0, 2.15, 3.2), (8.8, 0.06, 0.8), "warsun_yellow", "WarsunBuilding")
-    add_box("Warsun_Banner_Accent", (13.0, 2.12, 3.45), (8.6, 0.04, 0.2), "warsun_orange", "WarsunBuilding")
+    # ─── 10. WARTEG "WARUNG KONDANG" (AUTHENTIC INDONESIAN WARTEG OVERHAUL) ───
+    # Floor: White Ceramic Tiles with Grout
+    fl_obj = add_box("Warsun_Floor-col", (13.0, 6.35, 0.05), (9.0, 8.3, 0.1), "warteg_tile_floor", "WarsunBuilding")
+    scale_uv(fl_obj, 5.6, 5.2)
+    add_box("Warsun_Step-col", (13.000, 2.1625, 0.050), (9.000, 0.125, 0.100), "curb_concrete", "WarsunBuilding")
 
-    add_box("Warsun_Counter_Long-col", (13.5, 5.5, 0.5), (5.4, 0.8, 1.0), "kost_wall_white", "WarsunBuilding")
-    add_box("Warsun_Counter_Trim_Long", (13.5, 5.08, 0.98), (5.5, 0.08, 0.06), "warsun_orange", "WarsunBuilding")
-    add_box("Warsun_Counter_Short-col", (10.5, 7.0, 0.5), (0.9, 2.2, 1.0), "kost_wall_white", "WarsunBuilding")
-    add_box("Warsun_Counter_Trim_Short", (10.02, 7.0, 0.98), (0.12, 2.3, 0.06), "warsun_orange", "WarsunBuilding")
+    # Half-Walls: White Ceramic Tiles with Grout (height 1.45m)
+    hw_b = add_box("Warsun_HalfWall_Back-col", (13.0, 10.50, 0.725), (9.0, 0.12, 1.45), "warteg_tile_wall", "WarsunBuilding")
+    scale_uv(hw_b, 5.6, 0.9)
+    add_box("Warsun_Tile_Cap_Back", (13.0, 10.45, 1.46), (9.04, 0.06, 0.04), "warteg_green", "WarsunBuilding")
 
-    add_box("Warsun_Showcase_Glass_Front", (13.5, 5.12, 1.4), (4.96, 0.02, 0.76), "glass_showcase_transparent", "WarsunBuilding")
-    add_box("Warsun_Showcase_Glass_Top", (13.5, 5.5, 1.79), (4.96, 0.76, 0.02), "glass_showcase_transparent", "WarsunBuilding")
-    add_box("Warsun_Showcase_Glass_L", (11.02, 5.5, 1.4), (0.02, 0.76, 0.76), "glass_showcase_transparent", "WarsunBuilding")
-    add_box("Warsun_Showcase_Glass_R", (15.98, 5.5, 1.4), (0.02, 0.76, 0.76), "glass_showcase_transparent", "WarsunBuilding")
-    add_box("Warsun_Showcase_Shelf", (13.5, 5.5, 1.38), (4.92, 0.72, 0.02), "glass_showcase_transparent", "WarsunBuilding")
+    hw_l = add_box("Warsun_HalfWall_Left-col", (8.50, 6.35, 0.725), (0.12, 8.3, 1.45), "warteg_tile_wall", "WarsunBuilding")
+    scale_uv(hw_l, 5.2, 0.9)
+    add_box("Warsun_Tile_Cap_Left", (8.55, 6.35, 1.46), (0.06, 8.34, 0.04), "warteg_green", "WarsunBuilding")
 
-    for cx in [11.02, 15.98]:
-        for cy in [5.12, 5.88]:
-            add_box(f"Warsun_Showcase_Post_{cx}_{cy}", (cx, cy, 1.4), (0.03, 0.03, 0.8), "kost_railing_metal", "WarsunBuilding")
-    add_box("Warsun_Showcase_Bar_FT", (13.5, 5.12, 1.79), (5.0, 0.03, 0.03), "kost_railing_metal", "WarsunBuilding")
-    add_box("Warsun_Showcase_Bar_FB", (13.5, 5.12, 1.01), (5.0, 0.03, 0.03), "kost_railing_metal", "WarsunBuilding")
-    add_box("Warsun_Showcase_Bar_BT", (13.5, 5.88, 1.79), (5.0, 0.03, 0.03), "kost_railing_metal", "WarsunBuilding")
-    add_box("Warsun_Showcase_Bar_LT", (11.02, 5.5, 1.79), (0.03, 0.76, 0.03), "kost_railing_metal", "WarsunBuilding")
-    add_box("Warsun_Showcase_Bar_RT", (15.98, 5.5, 1.79), (0.03, 0.76, 0.03), "kost_railing_metal", "WarsunBuilding")
+    hw_r = add_box("Warsun_HalfWall_Right-col", (17.50, 6.35, 0.725), (0.12, 8.3, 1.45), "warteg_tile_wall", "WarsunBuilding")
+    scale_uv(hw_r, 5.2, 0.9)
+    add_box("Warsun_Tile_Cap_Right", (17.45, 6.35, 1.46), (0.06, 8.34, 0.04), "warteg_green", "WarsunBuilding")
 
-    food_dishes_lower = ["dish_ayam_goreng", "dish_telur_balado", "dish_tempe_orek", "dish_sayur_hijau", "dish_mie_kuning"]
-    food_dishes_upper = ["dish_sayur_lodeh", "dish_ayam_bakar", "dish_terong_balado", "dish_sambal_ijo", "dish_ayam_goreng"]
-    for i, dx in enumerate([11.5, 12.5, 13.5, 14.5, 15.5]):
-        add_box(f"Warsun_Tray_L_{i}", (dx, 5.5, 1.03), (0.85, 0.60, 0.04), "stainless_tray", "WarsunBuilding")
-        add_box(f"Warsun_Food_L_{i}", (dx, 5.5, 1.06), (0.80, 0.55, 0.05), food_dishes_lower[i], "WarsunBuilding")
-        add_box(f"Warsun_Tray_U_{i}", (dx, 5.5, 1.40), (0.85, 0.60, 0.04), "stainless_tray", "WarsunBuilding")
-        add_box(f"Warsun_Food_U_{i}", (dx, 5.5, 1.43), (0.80, 0.55, 0.05), food_dishes_upper[i], "WarsunBuilding")
+    # Upper Walls (Above 1.45m: clean cream painted wall)
+    add_box("Warsun_BackWall_Upper-col", (13.0, 10.55, 2.525), (9.2, 0.2, 2.15), "warteg_wall_upper", "WarsunBuilding")
+    add_box("Warsun_LeftWall_Upper-col", (8.45, 6.35, 2.525), (0.2, 8.4, 2.15), "warteg_wall_upper", "WarsunBuilding")
+    add_box("Warsun_RightWall_Upper-col", (17.55, 6.35, 2.525), (0.2, 8.4, 2.15), "warteg_wall_upper", "WarsunBuilding")
 
-    add_box("Warsun_Dine_Table-col", (13.5, 3.6, 0.75), (5.4, 0.9, 0.06), "wood_light", "WarsunBuilding")
-    for lx in [11.0, 16.0]:
-        for ly in [3.25, 3.95]:
-            add_box(f"Warsun_Table_Leg_{lx}_{ly}-col", (lx, ly, 0.36), (0.08, 0.08, 0.72), "kost_dark_grey", "WarsunBuilding")
-    add_box("Warsun_Bench_Front-col", (13.5, 2.7, 0.45), (5.0, 0.35, 0.05), "warsun_orange", "WarsunBuilding")
-    for bx in [11.2, 13.5, 15.8]:
-        add_box(f"Warsun_Bench_F_Leg_{bx}-col", (bx, 2.7, 0.22), (0.06, 0.30, 0.44), "kost_dark_grey", "WarsunBuilding")
-    add_box("Warsun_Bench_Side_A-col", (13.5, 7.8, 0.23), (4.6, 0.35, 0.46), "warsun_orange", "WarsunBuilding")
-    add_box("Warsun_Bench_Side_B-col", (13.5, 9.2, 0.23), (4.6, 0.35, 0.46), "warsun_orange", "WarsunBuilding")
-    
-    add_cylinder("Warsun_Kerupuk_Kaleng", (11.5, 3.6, 0.95), 0.22, 0.45, "kerupuk_kaleng_blue", "WarsunBuilding")
-    add_box("Warsun_Kerupuk_Window", (11.5, 3.39, 0.95), (0.24, 0.02, 0.24), "glass_showcase_transparent", "WarsunBuilding")
-    add_box("Warsun_Tisu_Dispenser", (13.5, 3.6, 0.84), (0.2, 0.2, 0.15), "paint_bucket", "WarsunBuilding")
-    add_cylinder("Warsun_Teko_Air", (15.2, 3.6, 0.9), 0.12, 0.25, "stainless_tray", "WarsunBuilding")
-    for i, sx in enumerate([11.5, 12.5, 13.5, 14.5, 15.5]):
-        add_box(f"Warsun_Sachet_Strip_{i}", (sx, 10.42, 2.2), (0.25, 0.03, 1.2), "warsun_yellow", "WarsunBuilding")
-    add_cylinder("Warsun_WallFan_Base", (17.42, 5.5, 2.5), 0.12, 0.04, "kost_dark_grey", "WarsunBuilding", rot=(0, math.radians(90), 0))
-    add_cylinder("Warsun_WallFan_Cage", (17.2, 5.5, 2.5), 0.3, 0.1, "kost_dark_grey", "WarsunBuilding", rot=(0, math.radians(90), 0))
+    # Ceiling, Roof & Front Canopy
+    add_box("Warsun_Roof-col", (13.05, 6.35, 3.75), (9.2, 8.8, 0.25), "tin_roof", "WarsunBuilding")
+    add_box("Warsun_Ceiling", (13.0, 6.35, 3.60), (9.0, 8.3, 0.04), "curb_white", "WarsunBuilding")
 
-    # ─── 11. GANG HOUSES (CLEAN WALLS, WOOD DOORS, FROSTED WINDOWS & HOUSE1 BALCONY) ───
+    # Warung Kondang Monumental Front 3D Signage Panel
+    add_box("Warung_Sign_Panel-col", (13.0, 2.08, 3.32), (7.8, 0.08, 0.90), "warteg_green", "WarsunBuilding")
+    add_box("Warung_Sign_Border_Top", (13.0, 2.03, 3.74), (7.84, 0.04, 0.05), "warsun_yellow", "WarsunBuilding")
+    add_box("Warung_Sign_Border_Bot", (13.0, 2.03, 2.90), (7.84, 0.04, 0.05), "warsun_yellow", "WarsunBuilding")
+    add_box("Warung_Sign_Border_L", (9.1, 2.03, 3.32), (0.05, 0.04, 0.90), "warsun_yellow", "WarsunBuilding")
+    add_box("Warung_Sign_Border_R", (16.9, 2.03, 3.32), (0.05, 0.04, 0.90), "warsun_yellow", "WarsunBuilding")
+
+    create_3d_text("Sign_Text_Warung_Kondang", "WARUNG KONDANG", (13.0, 2.00, 3.46), (math.radians(90), 0, 0), size=0.36, extrude=0.05, mat_name="warsun_yellow", col_name="WarsunBuilding")
+    create_3d_text("Sign_Subtext_Warung_Kondang", "SEDIA: NASI RAMES & MINUMAN", (13.0, 2.00, 3.12), (math.radians(90), 0, 0), size=0.15, extrude=0.02, mat_name="curb_white", col_name="WarsunBuilding")
+
+    # ─── AUTHENTIC WARTEG KHARISMA BAHARI L-SHAPED COUNTER (MATCHING REFERENCE PHOTO) ───
+    # 1. Solid Grounded Counter Base (Starts at floor Z=0.10, top at Z=0.88)
+    # Front Base: X from 12.00 to 17.44, Y from 3.65 to 4.75
+    add_box("Warsun_Counter_Front_Base-col", (14.72, 4.20, 0.49), (5.44, 1.10, 0.78), "warteg_tile_wall", "WarsunBuilding")
+    # Side Base: X from 12.00 to 13.15, Y from 4.75 to 7.50
+    add_box("Warsun_Counter_Side_Base-col", (12.575, 6.125, 0.49), (1.15, 2.75, 0.78), "warteg_tile_wall", "WarsunBuilding")
+
+    # 2. Dining Table Ledges (Z=0.88 to Z=0.92, Top at Z=0.92)
+    # Front Table Ledge: X from 12.45 to 17.44, Y from 3.65 to 4.10
+    add_box("Warsun_Counter_Front_Ledge-col", (14.945, 3.875, 0.90), (4.99, 0.45, 0.04), "warteg_tile_white", "WarsunBuilding")
+    # Side Table Ledge: X from 12.00 to 12.45, Y from 4.10 to 7.50
+    add_box("Warsun_Counter_Side_Ledge-col", (12.225, 5.80, 0.90), (0.45, 3.40, 0.04), "warteg_tile_white", "WarsunBuilding")
+    # Corner Joint: X from 12.00 to 12.45, Y from 3.65 to 4.10
+    add_box("Warsun_Counter_Corner_Top-col", (12.225, 3.875, 0.90), (0.45, 0.45, 0.04), "warteg_tile_white", "WarsunBuilding")
+    # Green Bullnose Trims
+    add_box("Warsun_Counter_Front_Trim", (14.72, 3.65, 0.88), (5.44, 0.04, 0.06), "warteg_green", "WarsunBuilding")
+    add_box("Warsun_Counter_Side_Trim", (12.00, 5.575, 0.88), (0.04, 3.85, 0.06), "warteg_green", "WarsunBuilding")
+
+    # 3. L-SHAPED TWO-TIER GLASS DISPLAY SHOWCASE (ETALASE LETTER L)
+    # Front Arm: X from 12.45 to 17.44, Y from 4.10 to 4.75
+    add_box("Warteg_Showcase_F_Base", (14.945, 4.425, 0.93), (4.99, 0.65, 0.02), "stainless_tray", "WarsunBuilding")
+    add_box("Warteg_Showcase_F_Glass_Front", (14.945, 4.10, 1.31), (4.99, 0.02, 0.76), "glass_showcase_transparent", "WarsunBuilding")
+    add_box("Warteg_Showcase_F_Glass_Top", (14.945, 4.425, 1.70), (4.99, 0.65, 0.02), "glass_showcase_transparent", "WarsunBuilding")
+    add_box("Warteg_Showcase_F_Glass_R", (17.44, 4.425, 1.31), (0.02, 0.65, 0.76), "glass_showcase_transparent", "WarsunBuilding")
+    add_box("Warteg_Showcase_F_Shelf", (14.945, 4.425, 1.31), (4.95, 0.61, 0.02), "glass_showcase_transparent", "WarsunBuilding")
+
+    # Side Arm: Y from 4.10 to 7.50, X from 12.45 to 13.15
+    add_box("Warteg_Showcase_S_Base", (12.80, 6.125, 0.93), (0.65, 2.75, 0.02), "stainless_tray", "WarsunBuilding")
+    # CRITICAL: Glass side meets glass front exactly at (12.45, 4.10)!
+    add_box("Warteg_Showcase_S_Glass_Side", (12.45, 5.80, 1.31), (0.02, 3.40, 0.76), "glass_showcase_transparent", "WarsunBuilding")
+    add_box("Warteg_Showcase_S_Glass_Top", (12.80, 6.125, 1.70), (0.65, 2.75, 0.02), "glass_showcase_transparent", "WarsunBuilding")
+    add_box("Warteg_Showcase_S_Glass_Back", (12.80, 7.50, 1.31), (0.65, 0.02, 0.76), "glass_showcase_transparent", "WarsunBuilding")
+    add_box("Warteg_Showcase_S_Shelf", (12.80, 6.125, 1.31), (0.61, 2.71, 0.02), "glass_showcase_transparent", "WarsunBuilding")
+
+    # Aluminum Framing Posts & Bars
+    add_box("Warteg_Case_Post_Corner", (12.45, 4.10, 1.31), (0.04, 0.04, 0.78), "kost_railing_metal", "WarsunBuilding")
+    add_box("Warteg_Case_Post_Inner_Corner", (13.15, 4.75, 1.31), (0.04, 0.04, 0.78), "kost_railing_metal", "WarsunBuilding")
+    for cx in [14.95, 17.44]:
+        for cy in [4.10, 4.75]:
+            add_box(f"Warteg_Case_Post_{cx}_{cy}", (cx, cy, 1.31), (0.03, 0.03, 0.78), "kost_railing_metal", "WarsunBuilding")
+    for cy in [5.80, 7.50]:
+        for cx in [12.45, 13.15]:
+            add_box(f"Warteg_Case_Post_{cx}_{cy}", (cx, cy, 1.31), (0.03, 0.03, 0.78), "kost_railing_metal", "WarsunBuilding")
+
+    add_box("Warteg_Case_F_Rail_Top", (14.945, 4.10, 1.70), (4.99, 0.03, 0.03), "kost_railing_metal", "WarsunBuilding")
+    add_box("Warteg_Case_F_Rail_Bot", (14.945, 4.10, 0.92), (4.99, 0.03, 0.03), "kost_railing_metal", "WarsunBuilding")
+    add_box("Warteg_Case_S_Rail_Top", (12.45, 5.80, 1.70), (0.03, 3.40, 0.03), "kost_railing_metal", "WarsunBuilding")
+    add_box("Warteg_Case_S_Rail_Bot", (12.45, 5.80, 0.92), (0.03, 3.40, 0.03), "kost_railing_metal", "WarsunBuilding")
+
+    # 4. FOOD DISHES INSIDE SHOWCASE
+    # Front Lower Tier (5 Trays)
+    dishes_front_low = [
+        ("dish_ayam_goreng", "Ayam_Goreng_Lengkuas"),
+        ("dish_telur_balado", "Telur_Balado_Pedas"),
+        ("dish_tempe_orek", "Orek_Tempe_Manis"),
+        ("dish_sayur_hijau", "Tumis_Kangkung_Buncis"),
+        ("dish_mie_kuning", "Mie_Goreng_Warteg")
+    ]
+    for i, (fmat, fname) in enumerate(dishes_front_low):
+        tx = 13.50 + i * 0.85
+        add_box(f"Tray_Low_F_{i}", (tx, 4.425, 0.95), (0.75, 0.50, 0.04), "stainless_tray", "WarsunBuilding")
+        add_box(f"Food_Low_F_{i}_{fname}", (tx, 4.425, 0.98), (0.69, 0.44, 0.05), fmat, "WarsunBuilding")
+
+    # Front Upper Tier (5 Plates on Stands)
+    dishes_front_up = [
+        ("dish_perkedel", "Perkedel_Kentang"),
+        ("dish_terong_balado", "Terong_Balado"),
+        ("wood_door_dark", "Tahu_Tempe_Bacem"),
+        ("dish_ayam_goreng", "Ikan_Goreng_Kremes"),
+        ("dish_mie_kuning", "Telur_Dadar_Tebal")
+    ]
+    for i, (fmat, fname) in enumerate(dishes_front_up):
+        tx = 13.50 + i * 0.85
+        add_cylinder(f"Plate_Stand_F_{i}", (tx, 4.425, 1.33), 0.11, 0.03, "paint_bucket", "WarsunBuilding", vertices=10)
+        add_cylinder(f"Plate_Dish_F_{i}", (tx, 4.425, 1.36), 0.23, 0.02, "curb_white", "WarsunBuilding", vertices=12)
+        add_cylinder(f"Food_Up_F_{i}_{fname}", (tx, 4.425, 1.39), 0.19, 0.04, fmat, "WarsunBuilding", vertices=12)
+
+    # Side Lower Tier (3 Trays)
+    dishes_side_low = [
+        ("dish_sayur_lodeh", "Sayur_Lodeh_Tahu"),
+        ("dish_telur_balado", "Sambal_Goreng_Ati"),
+        ("dish_sayur_hijau", "Urap_Sayur_Kelapa")
+    ]
+    for i, (fmat, fname) in enumerate(dishes_side_low):
+        ty = 5.20 + i * 0.85
+        add_box(f"Tray_Low_S_{i}", (12.80, ty, 0.95), (0.50, 0.75, 0.04), "stainless_tray", "WarsunBuilding")
+        add_box(f"Food_Low_S_{i}_{fname}", (12.80, ty, 0.98), (0.44, 0.69, 0.05), fmat, "WarsunBuilding")
+
+    # Side Upper Tier (3 Plates on Stands)
+    dishes_side_up = [
+        ("dish_telur_balado", "Kentang_Mustofa"),
+        ("dish_perkedel", "Bakwan_Sayur"),
+        ("dish_ayam_goreng", "Tempe_Mendoan")
+    ]
+    for i, (fmat, fname) in enumerate(dishes_side_up):
+        ty = 5.20 + i * 0.85
+        add_cylinder(f"Plate_Stand_S_{i}", (12.80, ty, 1.33), 0.11, 0.03, "paint_bucket", "WarsunBuilding", vertices=10)
+        add_cylinder(f"Plate_Dish_S_{i}", (12.80, ty, 1.36), 0.23, 0.02, "curb_white", "WarsunBuilding", vertices=12)
+        add_cylinder(f"Food_Up_S_{i}_{fname}", (12.80, ty, 1.39), 0.19, 0.04, fmat, "WarsunBuilding", vertices=12)
+
+    # 5. AUTHENTIC PROPS ON TOP OF GLASS SHOWCASE (Z=1.70)
+    for tx in [14.30, 16.50]:
+        add_cylinder(f"Warteg_Toples_Kerupuk_{tx}", (tx, 4.425, 1.86), 0.16, 0.30, "glass_showcase_transparent", "WarsunBuilding", vertices=14)
+        add_cylinder(f"Warteg_Toples_Lid_{tx}", (tx, 4.425, 2.02), 0.17, 0.03, "curb_white", "WarsunBuilding", vertices=14)
+        add_cylinder(f"Warteg_Toples_Fill_{tx}", (tx, 4.425, 1.84), 0.14, 0.24, "warteg_green", "WarsunBuilding", vertices=12)
+
+    for tx in [13.40, 15.40]:
+        add_cylinder(f"Warteg_Plate_Gorengan_{tx}", (tx, 4.425, 1.72), 0.22, 0.02, "dish_telur_balado", "WarsunBuilding", vertices=12)
+        add_cylinder(f"Warteg_Pisang_Goreng_{tx}", (tx, 4.425, 1.76), 0.18, 0.05, "dish_tempe_orek", "WarsunBuilding", vertices=12)
+
+    add_cylinder("Warteg_Toples_Side", (12.80, 5.60, 1.86), 0.16, 0.30, "glass_showcase_transparent", "WarsunBuilding", vertices=14)
+    add_cylinder("Warteg_Toples_Side_Lid", (12.80, 5.60, 2.02), 0.17, 0.03, "curb_white", "WarsunBuilding", vertices=14)
+    add_cylinder("Warteg_Plate_Side_Gorengan", (12.80, 6.70, 1.72), 0.22, 0.02, "dish_telur_balado", "WarsunBuilding", vertices=12)
+
+    # 6. STURDY, GROUNDED CUSTOMER BENCHES (NO FLOATING PIECES, NO CUTS)
+    # Front Bench (Along front table): from X=12.00 to 17.20, center X=14.60, Y=3.15
+    add_box("Warteg_Bench_Front-col", (14.60, 3.15, 0.485), (5.20, 0.32, 0.05), "warteg_green", "WarsunBuilding")
+    for bx in [12.20, 13.45, 14.70, 15.95, 17.10]:
+        add_box(f"Warteg_Bench_F_Leg_{bx}-col", (bx, 3.15, 0.28), (0.05, 0.26, 0.36), "kost_dark_grey", "WarsunBuilding")
+    add_box("Warteg_Bench_F_Rail", (14.60, 3.15, 0.18), (5.20, 0.04, 0.04), "warteg_green", "WarsunBuilding")
+
+    # Side Bench (Along side table): from Y=3.50 to 7.50, center Y=5.50, X=11.45
+    add_box("Warteg_Bench_Side-col", (11.45, 5.50, 0.485), (0.32, 4.00, 0.05), "warteg_green", "WarsunBuilding")
+    for by in [3.70, 4.95, 6.20, 7.40]:
+        add_box(f"Warteg_Bench_S_Leg_{by}-col", (11.45, by, 0.28), (0.26, 0.05, 0.36), "kost_dark_grey", "WarsunBuilding")
+    add_box("Warteg_Bench_S_Rail", (11.45, 5.50, 0.18), (0.04, 4.00, 0.04), "warteg_green", "WarsunBuilding")
+
+    # 7. PROPS RESTING FIRMLY ON TABLE (Z=0.92, ZERO FLOATING)
+    # Blue Kerupuk Tin on Side Table at Y=7.15 (firmly on table, NOT in walkway!)
+    add_box("Blek_Kerupuk_Body", (12.225, 7.15, 1.12), (0.32, 0.32, 0.40), "kerupuk_kaleng_blue", "WarsunBuilding")
+    add_cylinder("Blek_Kerupuk_Lid", (12.225, 7.15, 1.335), 0.15, 0.03, "paint_bucket", "WarsunBuilding")
+    add_cylinder("Blek_Kerupuk_Window", (12.055, 7.15, 1.12), 0.11, 0.02, "glass_showcase_transparent", "WarsunBuilding", rot=(0, math.radians(90), 0))
+
+    # Red Kerupuk Tin on Far Right Table End at X=17.15
+    add_box("Blek_Kerupuk_Merah_Body", (17.15, 3.875, 1.12), (0.32, 0.32, 0.40), "kerupuk_kaleng_red", "WarsunBuilding")
+    add_cylinder("Blek_Kerupuk_Merah_Lid", (17.15, 3.875, 1.335), 0.15, 0.03, "paint_bucket", "WarsunBuilding")
+    add_cylinder("Blek_Kerupuk_Merah_Window", (17.15, 3.705, 1.12), 0.11, 0.02, "glass_showcase_transparent", "WarsunBuilding", rot=(math.radians(90), 0, 0))
+
+    # Pink Water Pitcher (Teko Air Pink)
+    add_cylinder("Table_Teko_Pink_Body", (12.225, 4.35, 1.04), 0.10, 0.24, "warteg_pitcher_pink", "WarsunBuilding", vertices=12)
+    add_cylinder("Table_Teko_Pink_Lid", (12.225, 4.35, 1.175), 0.11, 0.03, "curb_white", "WarsunBuilding", vertices=12)
+
+    # Pink Round Tissue Dispenser
+    add_cylinder("Table_Tisu_Pink_Body", (13.50, 3.875, 0.98), 0.08, 0.12, "warteg_pitcher_pink", "WarsunBuilding", vertices=12)
+    add_cylinder("Table_Tisu_Pink_Top", (13.50, 3.875, 1.05), 0.05, 0.04, "warteg_pitcher_pink", "WarsunBuilding", vertices=10)
+
+    # Green Chilies Plate
+    add_cylinder("Table_Cabai_Plate", (14.10, 3.875, 0.93), 0.08, 0.02, "curb_white", "WarsunBuilding", vertices=10)
+    add_cylinder("Table_Cabai_Green", (14.10, 3.875, 0.945), 0.06, 0.015, "dish_sayur_hijau", "WarsunBuilding", vertices=8)
+
+    # Customer at Front Table (Eating Plate, Rice, Dish, Iced Tea)
+    add_cylinder("Table_Customer_Plate_F", (15.30, 3.875, 0.93), 0.18, 0.02, "dish_telur_balado", "WarsunBuilding", vertices=14)
+    add_cylinder("Table_Customer_Rice_F", (15.30, 3.875, 0.95), 0.11, 0.03, "paint_bucket", "WarsunBuilding", vertices=10)
+    add_box("Table_Customer_Dish_F", (15.38, 3.875, 0.96), (0.07, 0.07, 0.03), "dish_ayam_goreng", "WarsunBuilding")
+    add_cylinder("Table_Gelas_Teh_F", (14.70, 3.875, 0.98), 0.045, 0.12, "glass_showcase_transparent", "WarsunBuilding", vertices=10)
+    add_cylinder("Table_Air_Teh_F", (14.70, 3.875, 0.97), 0.042, 0.10, "dish_tempe_orek", "WarsunBuilding", vertices=10)
+
+    # Customer at Side Table (Eating Plate, Rice, Dish, Iced Tea, Kobokan)
+    add_cylinder("Table_Customer_Plate_S", (12.225, 5.20, 0.93), 0.18, 0.02, "curb_white", "WarsunBuilding", vertices=14)
+    add_cylinder("Table_Customer_Rice_S", (12.225, 5.20, 0.95), 0.11, 0.03, "paint_bucket", "WarsunBuilding", vertices=10)
+    add_box("Table_Customer_Dish_S", (12.225, 5.28, 0.96), (0.07, 0.07, 0.03), "dish_telur_balado", "WarsunBuilding")
+    add_cylinder("Table_Gelas_Teh_S", (12.225, 4.65, 0.98), 0.045, 0.12, "glass_showcase_transparent", "WarsunBuilding", vertices=10)
+    add_cylinder("Table_Air_Teh_S", (12.225, 4.65, 0.97), 0.042, 0.10, "dish_tempe_orek", "WarsunBuilding", vertices=10)
+    add_cylinder("Table_Kobokan_Bowl", (12.225, 5.80, 0.95), 0.09, 0.06, "stainless_tray", "WarsunBuilding", vertices=12)
+
+    # ─── KITCHEN PREP & BACK WALL AUTHENTIC DECOR ───
+    add_box("Cook_Prep_Counter-col", (15.20, 8.80, 0.45), (3.60, 0.75, 0.90), "stainless_tray", "WarsunBuilding")
+    add_cylinder("Magic_Com_Body", (13.90, 8.80, 1.10), 0.22, 0.38, "magic_com_white", "WarsunBuilding", vertices=14)
+    add_cylinder("Magic_Com_Lid", (13.90, 8.80, 1.30), 0.23, 0.04, "stainless_tray", "WarsunBuilding", vertices=14)
+    add_cylinder("Cobek_Batu", (15.60, 8.80, 0.94), 0.16, 0.05, "kost_dark_grey", "WarsunBuilding", vertices=10)
+    add_cylinder("Sambal_Ulek", (15.60, 8.80, 0.97), 0.14, 0.03, "dish_telur_balado", "WarsunBuilding", vertices=10)
+    add_cylinder("Ulekan_Batu", (15.68, 8.76, 1.03), 0.03, 0.14, "kost_dark_grey", "WarsunBuilding", rot=(math.radians(30), 0, 0))
+    add_cylinder("Kuali_Besar", (16.40, 8.80, 0.94), 0.24, 0.08, "kost_dark_grey", "WarsunBuilding", vertices=12)
+
+    # ─── BACK WALL AUTHENTIC WARTEG DECOR (CLEAN, NON-OVERLAPPING LAYOUT) ───
+    # 1. Analog Wall Clock on Left Wall (X=10.50, sitting cleanly in front of wall Y=10.45)
+    add_cylinder("Warteg_Jam_Dinding", (10.50, 10.425, 2.70), 0.20, 0.03, "curb_white", "WarsunBuilding", rot=(math.radians(90), 0, 0), vertices=14)
+    add_cylinder("Warteg_Jam_Frame", (10.50, 10.415, 2.70), 0.22, 0.04, "dish_telur_balado", "WarsunBuilding", rot=(math.radians(90), 0, 0), vertices=14)
+
+    # 2. Monumental WKB-Style Oval Logo in Upper Center (X=13.00, Z=2.75)
+    add_cylinder("WKB_Badge_Oval", (13.0, 10.45, 2.75), 0.85, 0.04, "warteg_green", "WarsunBuilding", rot=(math.radians(90), 0, 0), vertices=16)
+    add_cylinder("WKB_Badge_Inner", (13.0, 10.43, 2.75), 0.75, 0.04, "kost_dark_grey", "WarsunBuilding", rot=(math.radians(90), 0, 0), vertices=16)
+    create_3d_text("WKB_Text", "WARUNG KONDANG", (13.0, 10.40, 2.82), (math.radians(90), 0, 0), size=0.22, extrude=0.03, mat_name="warsun_yellow", col_name="WarsunBuilding")
+    create_3d_text("WKB_Subtext", "KHARISMA BAHARI STYLE", (13.0, 10.40, 2.60), (math.radians(90), 0, 0), size=0.10, extrude=0.02, mat_name="dish_telur_balado", col_name="WarsunBuilding")
+
+    # 3. Framed WKB Banner on Right Wall (X=15.50, Z=2.90)
+    add_box("WKB_Banner_Ojol_Frame", (15.50, 10.44, 2.90), (1.80, 0.02, 0.25), "kost_dark_grey", "WarsunBuilding")
+    add_box("WKB_Banner_Ojol_Panel", (15.50, 10.42, 2.90), (1.76, 0.02, 0.22), "curb_white", "WarsunBuilding")
+
+    # 4. Hanging Drink Sachets in Clear Columns (Zero overlap with Logo, Clock, or Banner!)
+    sachet_x_positions = [
+        11.20, 11.60, 12.00,        # Group A: Left of center logo
+        13.95, 14.30,               # Group B1: Between center logo and banner
+        16.60, 16.90, 17.20         # Group B2: Right of banner towards right wall
+    ]
+    for i, sx in enumerate(sachet_x_positions):
+        add_box(f"Warsun_Sachet_Strip_{i}", (sx, 10.42, 2.10), (0.16, 0.02, 0.85), "warsun_yellow" if i % 2 == 0 else "dish_telur_balado", "WarsunBuilding")
+
+    # ─── 11. GANG HOUSES (UNIFIED BALCONY 2F, CONTINUOUS FENCES & SLIDING GATES) ───
     def add_house_entrance(name_prefix, door_center, win_centers, face_axis='Y', sign=-1):
         dx, dy, dz = door_center
         if face_axis == 'Y':
@@ -850,20 +1117,203 @@ def build_all():
                 add_box(f"{name_prefix}_Window_Glass_{idx}", (wx, wy + sign * 0.02, wz), (w_w - 0.08, 0.02, w_h - 0.08), "glass_frosted", "GangHouses")
                 add_box(f"{name_prefix}_Win_Roster_{idx}", (wx, wy + sign * 0.02, wz + w_h/2.0 + 0.15), (w_w - 0.10, 0.04, 0.16), "roster_vent", "GangHouses")
 
-    # HOUSE 1: 2-Story Residence with Proper Functional Balcony!
+    # ─── UNIQUE SLIDING GATE BUILDERS FOR EACH HOUSE STYLE ───
+    def add_conwood_sliding_gate(name, pos, size=(1.16, 0.04, 1.0), col_name="GangHouses"):
+        gx, gy, gz = pos
+        gw, gd, gh = size
+        parts = []
+        # Modern black steel frame
+        parts.append(add_box(f"{name}_Frame_Bot", (gx, gy, gz - gh/2.0 + 0.03), (gw, gd, 0.05), "iron_fence_black", col_name))
+        parts.append(add_box(f"{name}_Frame_Top", (gx, gy, gz + gh/2.0 - 0.03), (gw, gd, 0.05), "iron_fence_black", col_name))
+        parts.append(add_box(f"{name}_Stile_L", (gx - gw/2.0 + 0.03, gy, gz), (0.05, gd, gh), "iron_fence_black", col_name))
+        parts.append(add_box(f"{name}_Stile_R", (gx + gw/2.0 - 0.03, gy, gz), (0.05, gd, gh), "iron_fence_black", col_name))
+        # 5 Horizontal conwood teak slats
+        slat_w = gw - 0.08
+        for si, sz_off in enumerate([-0.32, -0.16, 0.0, 0.16, 0.32]):
+            parts.append(add_box(f"{name}_WoodSlat_{si}", (gx, gy, gz + sz_off), (slat_w, gd * 0.8, 0.11), "fence_wood_slat", col_name))
+        # Modern stainless bar handle
+        parts.append(add_box(f"{name}_Handle", (gx + gw/2.0 - 0.08, gy + 0.04, gz), (0.02, 0.05, 0.35), "stainless_tray", col_name))
+        # Rollers
+        parts.append(add_cylinder(f"{name}_Wheel_L", (gx - gw/2.0 + 0.15, gy, gz - gh/2.0 - 0.02), 0.03, 0.03, "kost_dark_grey", col_name, rot=(math.radians(90), 0, 0)))
+        parts.append(add_cylinder(f"{name}_Wheel_R", (gx + gw/2.0 - 0.15, gy, gz - gh/2.0 - 0.02), 0.03, 0.03, "kost_dark_grey", col_name, rot=(math.radians(90), 0, 0)))
+        # Join moving gate parts
+        valid_objs = [p for p in parts if p and p.name in bpy.data.objects]
+        if valid_objs:
+            bpy.ops.object.select_all(action='DESELECT')
+            for vo in valid_objs:
+                vo.select_set(True)
+            bpy.context.view_layer.objects.active = valid_objs[0]
+            bpy.ops.object.join()
+            joined = bpy.context.view_layer.objects.active
+            joined.name = name
+        # Static floor track
+        add_box(f"{name}_Track", (gx + gw * 0.45, gy, 0.01), (gw * 2.1, 0.04, 0.02), "kost_dark_grey", col_name)
+
+    def add_picket_sliding_gate(name, pos, size=(1.16, 0.04, 1.0), col_name="GangHouses"):
+        gx, gy, gz = pos
+        gw, gd, gh = size
+        parts = []
+        # White timber frame
+        parts.append(add_box(f"{name}_Rail_Bot", (gx, gy, gz - 0.30), (gw, gd, 0.06), "fence_white_wood", col_name))
+        parts.append(add_box(f"{name}_Rail_Top", (gx, gy, gz + 0.25), (gw, gd, 0.06), "fence_white_wood", col_name))
+        parts.append(add_box(f"{name}_Stile_L", (gx - gw/2.0 + 0.04, gy, gz), (0.06, gd, gh * 0.9), "fence_white_wood", col_name))
+        parts.append(add_box(f"{name}_Stile_R", (gx + gw/2.0 - 0.04, gy, gz), (0.06, gd, gh * 0.9), "fence_white_wood", col_name))
+        # 5 Pointed white pickets
+        for pi in range(1, 6):
+            px = (gx - gw/2.0) + pi * (gw / 6.0)
+            parts.append(add_box(f"{name}_Picket_{pi}", (px, gy, gz), (0.08, gd * 0.9, gh * 0.88), "fence_white_wood", col_name))
+            parts.append(add_box(f"{name}_Tip_{pi}", (px, gy, gz + gh * 0.44 + 0.03), (0.06, gd * 0.9, 0.06), "fence_white_wood", col_name, rot=(0, math.radians(45), 0)))
+        # Brass latch
+        parts.append(add_box(f"{name}_Handle", (gx + gw/2.0 - 0.09, gy + 0.04, gz + 0.05), (0.02, 0.05, 0.12), "fence_gold_accent", col_name))
+        # Rollers
+        parts.append(add_cylinder(f"{name}_Wheel_L", (gx - gw/2.0 + 0.15, gy, gz - gh/2.0 - 0.02), 0.03, 0.03, "kost_dark_grey", col_name, rot=(math.radians(90), 0, 0)))
+        parts.append(add_cylinder(f"{name}_Wheel_R", (gx + gw/2.0 - 0.15, gy, gz - gh/2.0 - 0.02), 0.03, 0.03, "kost_dark_grey", col_name, rot=(math.radians(90), 0, 0)))
+        # Join moving gate parts
+        valid_objs = [p for p in parts if p and p.name in bpy.data.objects]
+        if valid_objs:
+            bpy.ops.object.select_all(action='DESELECT')
+            for vo in valid_objs:
+                vo.select_set(True)
+            bpy.context.view_layer.objects.active = valid_objs[0]
+            bpy.ops.object.join()
+            joined = bpy.context.view_layer.objects.active
+            joined.name = name
+        # Static floor track
+        add_box(f"{name}_Track", (gx + gw * 0.45, gy, 0.01), (gw * 2.1, 0.04, 0.02), "kost_dark_grey", col_name)
+
+    def add_roster_sliding_gate(name, pos, size=(1.16, 0.04, 1.0), col_name="GangHouses"):
+        gx, gy, gz = pos
+        gw, gd, gh = size
+        parts = []
+        # Emerald green steel frame
+        parts.append(add_box(f"{name}_Frame_Bot", (gx, gy, gz - gh/2.0 + 0.03), (gw, gd, 0.05), "fence_emerald_green", col_name))
+        parts.append(add_box(f"{name}_Frame_Top", (gx, gy, gz + gh/2.0 - 0.03), (gw, gd, 0.05), "fence_emerald_green", col_name))
+        parts.append(add_box(f"{name}_Stile_L", (gx - gw/2.0 + 0.03, gy, gz), (0.05, gd, gh), "fence_emerald_green", col_name))
+        parts.append(add_box(f"{name}_Stile_R", (gx + gw/2.0 - 0.03, gy, gz), (0.05, gd, gh), "fence_emerald_green", col_name))
+        parts.append(add_box(f"{name}_Mid_Rail", (gx, gy, gz), (gw, gd, 0.04), "fence_emerald_green", col_name))
+        # Lower panel: terracotta roster blocks
+        parts.append(add_box(f"{name}_Roster_Panel", (gx, gy, gz - 0.22), (gw - 0.08, gd * 0.8, 0.38), "fence_terracotta", col_name))
+        for ri, rx_off in enumerate([-0.35, -0.12, 0.12, 0.35]):
+            parts.append(add_box(f"{name}_Roster_Slot_{ri}", (gx + rx_off, gy, gz - 0.22), (0.10, gd, 0.20), "drain_trench", col_name))
+        # Upper panel: 3 horizontal emerald bars
+        for bi, bz in enumerate([0.15, 0.28, 0.41]):
+            parts.append(add_box(f"{name}_Bar_{bi}", (gx, gy, gz + bz), (gw - 0.08, gd * 0.6, 0.03), "fence_emerald_green", col_name))
+        # Silver handle
+        parts.append(add_box(f"{name}_Handle", (gx + gw/2.0 - 0.08, gy + 0.04, gz + 0.05), (0.02, 0.06, 0.22), "stainless_tray", col_name))
+        # Rollers
+        parts.append(add_cylinder(f"{name}_Wheel_L", (gx - gw/2.0 + 0.15, gy, gz - gh/2.0 - 0.02), 0.03, 0.03, "kost_dark_grey", col_name, rot=(math.radians(90), 0, 0)))
+        parts.append(add_cylinder(f"{name}_Wheel_R", (gx + gw/2.0 - 0.15, gy, gz - gh/2.0 - 0.02), 0.03, 0.03, "kost_dark_grey", col_name, rot=(math.radians(90), 0, 0)))
+        # Join moving gate parts
+        valid_objs = [p for p in parts if p and p.name in bpy.data.objects]
+        if valid_objs:
+            bpy.ops.object.select_all(action='DESELECT')
+            for vo in valid_objs:
+                vo.select_set(True)
+            bpy.context.view_layer.objects.active = valid_objs[0]
+            bpy.ops.object.join()
+            joined = bpy.context.view_layer.objects.active
+            joined.name = name
+        # Static floor track
+        add_box(f"{name}_Track", (gx + gw * 0.45, gy, 0.01), (gw * 2.1, 0.04, 0.02), "kost_dark_grey", col_name)
+
+    def add_spearhead_sliding_gate(name, pos, size=(1.16, 0.04, 1.0), col_name="GangHouses"):
+        gx, gy, gz = pos
+        gw, gd, gh = size
+        parts = []
+        # Classic wrought iron frame
+        parts.append(add_box(f"{name}_Frame_Bot", (gx, gy, gz - gh/2.0 + 0.03), (gw, gd, 0.05), "iron_fence_black", col_name))
+        parts.append(add_box(f"{name}_Frame_Top", (gx, gy, gz + 0.35), (gw, gd, 0.04), "iron_fence_black", col_name))
+        parts.append(add_box(f"{name}_Stile_L", (gx - gw/2.0 + 0.03, gy, gz), (0.05, gd, gh * 0.9), "iron_fence_black", col_name))
+        parts.append(add_box(f"{name}_Stile_R", (gx + gw/2.0 - 0.03, gy, gz), (0.05, gd, gh * 0.9), "iron_fence_black", col_name))
+        parts.append(add_box(f"{name}_Mid_Rail", (gx, gy, gz - 0.10), (gw, gd, 0.03), "iron_fence_black", col_name))
+        # 5 Vertical pickets with golden spearhead finials
+        for pi in range(1, 6):
+            px = (gx - gw/2.0) + pi * (gw / 6.0)
+            parts.append(add_box(f"{name}_Picket_{pi}", (px, gy, gz - 0.02), (0.025, gd * 0.7, 0.86), "iron_fence_black", col_name))
+            parts.append(add_box(f"{name}_Spear_{pi}", (px, gy, gz + 0.45), (0.04, gd * 0.9, 0.08), "fence_gold_accent", col_name, rot=(0, math.radians(45), 0)))
+        # Gold/brass pull handle
+        parts.append(add_box(f"{name}_Handle", (gx + gw/2.0 - 0.08, gy + 0.04, gz), (0.02, 0.06, 0.18), "fence_gold_accent", col_name))
+        # Rollers
+        parts.append(add_cylinder(f"{name}_Wheel_L", (gx - gw/2.0 + 0.15, gy, gz - gh/2.0 - 0.02), 0.03, 0.03, "kost_dark_grey", col_name, rot=(math.radians(90), 0, 0)))
+        parts.append(add_cylinder(f"{name}_Wheel_R", (gx + gw/2.0 - 0.15, gy, gz - gh/2.0 - 0.02), 0.03, 0.03, "kost_dark_grey", col_name, rot=(math.radians(90), 0, 0)))
+        # Join moving gate parts
+        valid_objs = [p for p in parts if p and p.name in bpy.data.objects]
+        if valid_objs:
+            bpy.ops.object.select_all(action='DESELECT')
+            for vo in valid_objs:
+                vo.select_set(True)
+            bpy.context.view_layer.objects.active = valid_objs[0]
+            bpy.ops.object.join()
+            joined = bpy.context.view_layer.objects.active
+            joined.name = name
+        # Static floor track
+        add_box(f"{name}_Track", (gx + gw * 0.45, gy, 0.01), (gw * 2.1, 0.04, 0.02), "kost_dark_grey", col_name)
+
+    def add_bronze_sliding_gate(name, pos, size=(1.16, 0.04, 1.0), col_name="GangHouses"):
+        gx, gy, gz = pos
+        gw, gd, gh = size
+        parts = []
+        # Metallic bronze frame
+        parts.append(add_box(f"{name}_Frame_Bot", (gx, gy, gz - gh/2.0 + 0.03), (gw, gd, 0.05), "fence_bronze", col_name))
+        parts.append(add_box(f"{name}_Frame_Top", (gx, gy, gz + gh/2.0 - 0.03), (gw, gd, 0.05), "fence_bronze", col_name))
+        parts.append(add_box(f"{name}_Stile_L", (gx - gw/2.0 + 0.03, gy, gz), (0.05, gd, gh), "fence_bronze", col_name))
+        parts.append(add_box(f"{name}_Stile_R", (gx + gw/2.0 - 0.03, gy, gz), (0.05, gd, gh), "fence_bronze", col_name))
+        # 8 Dense vertical bronze louvers
+        for pi in range(1, 9):
+            px = (gx - gw/2.0) + pi * (gw / 9.0)
+            parts.append(add_box(f"{name}_Louver_{pi}", (px, gy, gz), (0.02, gd * 0.9, gh - 0.08), "fence_bronze", col_name))
+        # Dark iron recessed handle
+        parts.append(add_box(f"{name}_Handle", (gx + gw/2.0 - 0.08, gy + 0.04, gz), (0.02, 0.05, 0.30), "iron_fence_black", col_name))
+        # Rollers
+        parts.append(add_cylinder(f"{name}_Wheel_L", (gx - gw/2.0 + 0.15, gy, gz - gh/2.0 - 0.02), 0.03, 0.03, "kost_dark_grey", col_name, rot=(math.radians(90), 0, 0)))
+        parts.append(add_cylinder(f"{name}_Wheel_R", (gx + gw/2.0 - 0.15, gy, gz - gh/2.0 - 0.02), 0.03, 0.03, "kost_dark_grey", col_name, rot=(math.radians(90), 0, 0)))
+        # Join moving gate parts
+        valid_objs = [p for p in parts if p and p.name in bpy.data.objects]
+        if valid_objs:
+            bpy.ops.object.select_all(action='DESELECT')
+            for vo in valid_objs:
+                vo.select_set(True)
+            bpy.context.view_layer.objects.active = valid_objs[0]
+            bpy.ops.object.join()
+            joined = bpy.context.view_layer.objects.active
+            joined.name = name
+        # Static floor track
+        add_box(f"{name}_Track", (gx + gw * 0.45, gy, 0.01), (gw * 2.1, 0.04, 0.02), "kost_dark_grey", col_name)
+
+    # ──────── HOUSE 1 (2-Story Residence with Modern Conwood & Steel Fence) ────────
     add_box("House1_FrontLawn-col", (-1.5, -3.8, 0.02), (7.8, 3.0, 0.05), "grass_lawn", "GangHouses")
     for step_y in [-2.8, -3.5, -4.2, -4.9]:
         add_box(f"House1_Step_{step_y}", (0.8, step_y, 0.05), (0.7, 0.45, 0.03), "kost_concrete_grey", "GangHouses")
-    add_box("House1_Fence_Wall_L-col", (-3.5, -2.25, 0.5), (3.8, 0.12, 1.0), "iron_fence_black", "GangHouses")
-    add_box("House1_Fence_Wall_R-col", (1.6, -2.25, 0.5), (1.6, 0.12, 1.0), "iron_fence_black", "GangHouses")
-    add_box("House1_Gate_Post_L-col", (0.0, -2.25, 0.6), (0.2, 0.2, 1.2), "kost_concrete_grey", "GangHouses")
-    add_box("House1_Gate_Post_R-col", (1.0, -2.25, 0.6), (0.2, 0.2, 1.2), "kost_concrete_grey", "GangHouses")
-    add_box("House1_Iron_Gate", (0.5, -2.25, 0.5), (0.9, 0.04, 1.0), "kost_railing_metal", "GangHouses")
 
-    # Main Building
+    # Front Fence: White concrete dwarf wall base with dark steel frame and horizontal warm conwood slats
+    add_box("House1_Base_L-col", (-3.05, -2.25, 0.18), (6.1, 0.18, 0.36), "kost_wall_white", "GangHouses")
+    add_box("House1_Base_Cap_L", (-3.05, -2.25, 0.38), (6.14, 0.22, 0.05), "kost_dark_grey", "GangHouses")
+    add_box("House1_Steel_Frame_L-col", (-3.05, -2.25, 0.72), (6.1, 0.06, 0.64), "iron_fence_black", "GangHouses")
+    for sz in [0.48, 0.62, 0.76, 0.90]:
+        add_box(f"House1_Wood_Slat_L_{sz}", (-3.05, -2.25, sz), (6.0, 0.04, 0.10), "fence_wood_slat", "GangHouses")
+
+    # Modern White Gate Pillars with Charcoal Cap
+    add_box("House1_Gate_Post_L-col", (0.0, -2.25, 0.65), (0.28, 0.28, 1.30), "kost_wall_white", "GangHouses")
+    add_box("House1_Gate_Post_L_Cap", (0.0, -2.25, 1.32), (0.32, 0.32, 0.06), "kost_dark_grey", "GangHouses")
+    add_box("House1_Gate_Post_R-col", (1.2, -2.25, 0.65), (0.28, 0.28, 1.30), "kost_wall_white", "GangHouses")
+    add_box("House1_Gate_Post_R_Cap", (1.2, -2.25, 1.32), (0.32, 0.32, 0.06), "kost_dark_grey", "GangHouses")
+
+    # Sliding Gate: Conwood Wood Slat + Black Steel
+    add_conwood_sliding_gate("SlidingGate_House1", (0.6, -2.22, 0.5), size=(1.16, 0.04, 1.0))
+
+    # Right Section (X = 1.2 to 3.5)
+    add_box("House1_Base_R-col", (2.35, -2.25, 0.18), (2.3, 0.18, 0.36), "kost_wall_white", "GangHouses")
+    add_box("House1_Base_Cap_R", (2.35, -2.25, 0.38), (2.34, 0.22, 0.05), "kost_dark_grey", "GangHouses")
+    add_box("House1_Steel_Frame_R-col", (2.35, -2.25, 0.72), (2.3, 0.06, 0.64), "iron_fence_black", "GangHouses")
+    for sz in [0.48, 0.62, 0.76, 0.90]:
+        add_box(f"House1_Wood_Slat_R_{sz}", (2.35, -2.25, sz), (2.2, 0.04, 0.10), "fence_wood_slat", "GangHouses")
+
+    # House 1 Side Enclosure Wall (East Boundary connecting front fence to main building)
+    add_box("House1_Side_Wall_E-col", (3.5, -3.625, 0.5), (0.18, 2.75, 1.0), "kost_wall_white", "GangHouses")
+    add_box("House1_Side_Wall_E_Cap", (3.5, -3.625, 1.02), (0.22, 2.77, 0.05), "kost_dark_grey", "GangHouses")
+
+    # House 1 Main Structure
     add_box("House1_Main_Building-col", (-1.5, -7.8, 2.6), (7.6, 5.6, 5.2), "kost_wall_white", "GangHouses")
-
-    # Roof & Eaves
     add_box("House1_Roof-col", (-1.5, -7.8, 5.3), (8.0, 6.0, 0.4), "tile_roof_brown", "GangHouses")
     add_box("House1_Roof_Ridge", (-1.5, -7.8, 5.52), (8.1, 0.25, 0.12), "roof_ridge_dark", "GangHouses")
 
@@ -885,16 +1335,10 @@ def build_all():
         add_box(f"House1_Balcony_Rail_L_{rz}", (-4.45, -4.32, rz), (0.04, 1.30, 0.04), "kost_railing_metal", "GangHouses")
         add_box(f"House1_Balcony_Rail_R_{rz}", (1.45, -4.32, rz), (0.04, 1.30, 0.04), "kost_railing_metal", "GangHouses")
 
-    # 2nd Floor Balcony Access Doors & Window
-    add_box("House1_Balcony_Door_Frame", (0.5, -4.96, 3.95), (1.40, 0.08, 2.10), "kost_dark_grey", "GangHouses")
-    add_box("House1_Balcony_Door_L", (0.2, -4.94, 3.95), (0.58, 0.04, 2.02), "wood_door", "GangHouses")
-    add_box("House1_Balcony_Door_R", (0.8, -4.94, 3.95), (0.58, 0.04, 2.02), "wood_door", "GangHouses")
-    add_box("House1_Balcony_Door_Glass_L", (0.2, -4.93, 3.95), (0.44, 0.02, 1.50), "glass_frosted", "GangHouses")
-    add_box("House1_Balcony_Door_Glass_R", (0.8, -4.93, 3.95), (0.44, 0.02, 1.50), "glass_frosted", "GangHouses")
-    add_box("House1_Balcony_Win_Frame", (-2.6, -4.96, 4.05), (2.0, 0.08, 1.20), "kost_dark_grey", "GangHouses")
-    add_box("House1_Balcony_Win_Glass", (-2.6, -4.94, 4.05), (1.86, 0.02, 1.06), "glass_frosted", "GangHouses")
+    # 2nd Floor Balcony Entrance (EXACT SAME DOOR & WINDOW ARCHITECTURE AS 1F!)
+    add_house_entrance("House1_2F", (0.8, -4.96, 2.85), [(-2.6, -4.96, 4.20, 2.6, 1.3)], face_axis='Y', sign=1)
 
-    # HOUSE 2: Tosca House with brick accent wall and TV Antenna
+    # ──────── HOUSE 2 (Tosca House - TANPA PAGAR / OPEN FRONT TERRACE) ────────
     add_box("House2_Main_Building-col", (-10.5, -7.0, 1.8), (8.8, 6.8, 3.6), "wall_tosca", "GangHouses")
     add_box("House2_SideBrickWall-col", (-5.95, -7.0, 1.8), (0.25, 6.8, 3.6), "brick_red", "GangHouses")
     add_box("House2_Roof-col", (-10.5, -7.0, 3.9), (9.2, 7.2, 0.8), "tile_roof_brown", "GangHouses")
@@ -908,16 +1352,28 @@ def build_all():
     add_cylinder("House2_Awning_Post_R", (-6.2, -2.4, 1.2), 0.04, 2.4, "kost_dark_grey", "GangHouses")
     add_box("House2_Chair_1-col", (-8.0, -3.2, 0.4), (0.5, 0.5, 0.45), "wood_light", "GangHouses")
     add_box("House2_Chair_2-col", (-9.0, -3.2, 0.4), (0.5, 0.5, 0.45), "wood_light", "GangHouses")
-    add_box("House2_Low_Wall_L-col", (-12.8, -2.3, 0.6), (4.2, 0.15, 1.2), "kost_concrete_grey", "GangHouses")
-    add_box("House2_Iron_Gate", (-10.2, -2.3, 0.6), (1.2, 0.04, 1.2), "kost_dark_grey", "GangHouses")
-    add_box("House2_Low_Wall_R-col", (-8.0, -2.3, 0.6), (3.0, 0.15, 1.2), "kost_concrete_grey", "GangHouses")
-    add_box("House2_Jemuran_Frame_L", (-6.8, -2.5, 0.65), (0.03, 0.6, 1.3), "kost_railing_metal", "GangHouses")
-    add_box("House2_Jemuran_Frame_R", (-5.2, -2.5, 0.65), (0.03, 0.6, 1.3), "kost_railing_metal", "GangHouses")
-    add_box("House2_Jemuran_Baju_Red", (-6.3, -2.5, 0.75), (0.45, 0.03, 0.6), "clothes_red", "GangHouses")
-    add_box("House2_Jemuran_Handuk_Blue", (-5.8, -2.5, 0.70), (0.45, 0.03, 0.7), "clothes_blue", "GangHouses")
-    add_box("House2_Jemuran_Baju_Yellow", (-5.4, -2.5, 0.75), (0.35, 0.03, 0.55), "clothes_yellow", "GangHouses")
 
-    # HOUSE 3: Warm Yellow House with picket fence
+    # OPEN FRONT TERRACE (ZERO FENCE, ZERO GATES - Terbuka Ramah ke Gang)
+    add_box("House2_Front_Terrace-col", (-10.5, -2.85, 0.04), (8.8, 1.25, 0.08), "kost_floor_paving", "GangHouses")
+    add_cylinder("House2_Front_Pot_0", (-12.5, -2.4, 0.16), 0.18, 0.32, "brick_red", "GangHouses", vertices=8)
+    add_bush_clump("House2_Front_Bush_0", (-12.5, -2.4, 0.34), 0.24, "GangHouses", flower_mat="flower_magenta")
+    add_cylinder("House2_Front_Pot_1", (-7.2, -2.4, 0.16), 0.18, 0.32, "paint_bucket", "GangHouses", vertices=8)
+    add_bush_clump("House2_Front_Bush_1", (-7.2, -2.4, 0.34), 0.24, "GangHouses", flower_mat="flower_yellow")
+
+    # House 2 Side Boundary Walls (West with House 5 & East with House 1)
+    add_box("House2_Side_Wall_W-col", (-15.0, -4.625, 0.5), (0.15, 4.75, 1.0), "kost_concrete_grey", "GangHouses")
+    add_box("House2_Side_Wall_W_Cap", (-15.0, -4.625, 1.02), (0.19, 4.77, 0.05), "curb_concrete", "GangHouses")
+    add_box("House2_Side_Wall_E-col", (-6.1, -3.625, 0.5), (0.15, 2.75, 1.0), "kost_concrete_grey", "GangHouses")
+    add_box("House2_Side_Wall_E_Cap", (-6.1, -3.625, 1.02), (0.19, 2.77, 0.05), "curb_concrete", "GangHouses")
+
+    # House 2 Jemuran - Relocated to west terrace of House 2, away from boundary wall (decoration only)
+    add_box("House2_Jemuran_Frame_L", (-14.1, -3.1, 0.65), (0.03, 0.55, 1.3), "kost_railing_metal", "GangHouses")
+    add_box("House2_Jemuran_Frame_R", (-12.7, -3.1, 0.65), (0.03, 0.55, 1.3), "kost_railing_metal", "GangHouses")
+    add_box("House2_Jemuran_Baju_Red", (-13.7, -3.1, 0.75), (0.45, 0.03, 0.6), "clothes_red", "GangHouses")
+    add_box("House2_Jemuran_Handuk_Blue", (-13.2, -3.1, 0.70), (0.45, 0.03, 0.7), "clothes_blue", "GangHouses")
+    add_box("House2_Jemuran_Baju_Yellow", (-12.8, -3.1, 0.75), (0.35, 0.03, 0.55), "clothes_yellow", "GangHouses")
+
+    # ──────── HOUSE 3 (Warm Yellow House with Classic White Picket Fence) ────────
     add_box("House3_Main_Building-col", (8.0, -7.0, 1.8), (9.0, 6.8, 3.6), "wall_yellow", "GangHouses")
     add_box("House3_Roof-col", (8.0, -7.0, 3.9), (9.4, 7.2, 0.8), "tin_roof", "GangHouses")
     add_box("House3_Roof_Ridge", (8.0, -7.0, 4.35), (9.5, 0.25, 0.12), "roof_ridge_dark", "GangHouses")
@@ -926,14 +1382,29 @@ def build_all():
 
     add_house_entrance("House3", (6.5, -3.56, 0.0), [(4.8, -3.56, 1.4, 1.2, 1.1), (9.5, -3.56, 1.4, 1.2, 1.1)], face_axis='Y', sign=1)
     add_box("House3_Yard-col", (8.0, -3.5, 0.02), (8.8, 2.4, 0.05), "kost_floor_paving", "GangHouses")
-    add_box("House3_Picket_Fence_L-col", (5.2, -2.25, 0.4), (3.6, 0.08, 0.8), "wood_light", "GangHouses")
-    add_box("House3_Picket_Fence_R-col", (10.5, -2.25, 0.4), (3.6, 0.08, 0.8), "wood_light", "GangHouses")
-    add_box("House3_Picket_Gate", (7.8, -2.25, 0.4), (0.9, 0.04, 0.8), "wood_door", "GangHouses")
 
-    add_cylinder("House3_Trash_Drum", (3.6, -2.25, 0.38), 0.26, 0.76, "pvc_blue", "GangHouses", vertices=8)
-    add_cylinder("House3_Trash_Lid", (3.6, -2.25, 0.78), 0.28, 0.06, "kost_dark_grey", "GangHouses", vertices=8)
+    # Classic White Timber Gateposts
+    add_box("House3_Gate_Post_L-col", (7.2, -2.25, 0.55), (0.18, 0.18, 1.10), "fence_white_wood", "GangHouses")
+    add_box("House3_Gate_Post_L_Cap", (7.2, -2.25, 1.12), (0.22, 0.22, 0.06), "fence_white_wood", "GangHouses")
+    add_box("House3_Gate_Post_R-col", (8.4, -2.25, 0.55), (0.18, 0.18, 1.10), "fence_white_wood", "GangHouses")
+    add_box("House3_Gate_Post_R_Cap", (8.4, -2.25, 1.12), (0.22, 0.22, 0.06), "fence_white_wood", "GangHouses")
 
-    # HOUSE 4: Blue/Cream House (North side)
+    # White Picket Fence Left Section (X = 3.5 to 7.2)
+    add_box("House3_Fence_L-col", (5.35, -2.25, 0.5), (3.7, 0.08, 0.95), "fence_white_wood", "GangHouses")
+    # Sliding Gate: White Pickets
+    add_picket_sliding_gate("SlidingGate_House3", (7.8, -2.22, 0.5), size=(1.16, 0.04, 1.0))
+    # White Picket Fence Right Section (X = 8.4 to 13.0)
+    add_box("House3_Fence_R-col", (10.7, -2.25, 0.5), (4.6, 0.08, 0.95), "fence_white_wood", "GangHouses")
+
+    # House 3 Side Enclosure Wall (East Boundary with House 6)
+    add_box("House3_Side_Wall_E-col", (13.0, -4.625, 0.5), (0.15, 4.75, 1.0), "fence_white_wood", "GangHouses")
+    add_box("House3_Side_Wall_E_Cap", (13.0, -4.625, 1.02), (0.19, 4.77, 0.05), "curb_concrete", "GangHouses")
+
+    # Blue Trash Drum - placed neatly behind curb in front of House 3 fence post (no clipping with curb or wall)
+    add_cylinder("House3_Trash_Drum", (7.0, -2.35, 0.38), 0.26, 0.76, "pvc_blue", "GangHouses", vertices=8)
+    add_cylinder("House3_Trash_Lid", (7.0, -2.35, 0.78), 0.28, 0.06, "kost_dark_grey", "GangHouses", vertices=8)
+
+    # ──────── HOUSE 4 (North Side House - TANPA PAGAR / OPEN FRONT TERRACE) ────────
     add_box("House4_North-col", (-20.0, 7.0, 1.8), (9.5, 8.5, 3.6), "wall_tosca", "GangHouses")
     add_box("House4_North_Roof-col", (-20.0, 7.0, 3.9), (9.8, 8.8, 0.8), "tile_roof_brown", "GangHouses")
     add_box("House4_Roof_Ridge", (-20.0, 7.0, 4.35), (9.9, 0.25, 0.12), "roof_ridge_dark", "GangHouses")
@@ -941,17 +1412,46 @@ def build_all():
     add_box("House4_Porch-col", (-18.0, 2.0, 0.06), (3.0, 1.4, 0.12), "kost_floor_paving", "GangHouses")
     add_box("House4_Awning", (-18.0, 2.0, 2.5), (3.2, 1.6, 0.06), "tin_roof", "GangHouses")
 
-    # HOUSE 5: South House with Planter Pots
+    # OPEN FRONT TERRACE FOR HOUSE 4 (ZERO FENCE, ZERO GATES - Terbuka Ramah ke Gang)
+    add_box("House4_Front_Terrace-col", (-18.750, 2.4075, 0.040), (7.500, 0.565, 0.080), "kost_floor_paving", "GangHouses")
+    add_cylinder("House4_Front_Pot_0", (-22.5, 2.4, 0.16), 0.18, 0.32, "paint_bucket", "GangHouses", vertices=8)
+    add_bush_clump("House4_Front_Bush_0", (-22.5, 2.4, 0.34), 0.24, "GangHouses", flower_mat="flower_magenta")
+    add_cylinder("House4_Front_Pot_1", (-15.5, 2.4, 0.16), 0.18, 0.32, "brick_red", "GangHouses", vertices=8)
+    add_bush_clump("House4_Front_Bush_1", (-15.5, 2.4, 0.34), 0.24, "GangHouses", flower_mat="flower_yellow")
+
+    # House 4 Side Enclosure Walls (West & East Boundaries)
+    add_box("House4_Side_Wall_W-col", (-24.0, 4.625, 0.5), (0.15, 4.75, 1.0), "kost_concrete_grey", "GangHouses")
+    add_box("House4_Side_Wall_W_Cap", (-24.0, 4.625, 1.02), (0.19, 4.77, 0.05), "curb_concrete", "GangHouses")
+    add_box("House4_Side_Wall_E-col", (-14.0, 4.625, 0.5), (0.15, 4.75, 1.0), "kost_concrete_grey", "GangHouses")
+    add_box("House4_Side_Wall_E_Cap", (-14.0, 4.625, 1.02), (0.19, 4.77, 0.05), "curb_concrete", "GangHouses")
+
+    # ──────── HOUSE 5 (South House with Red Brick & Spearhead Wrought Iron) ────────
     add_box("House5_South-col", (-20.0, -7.0, 1.8), (9.5, 7.0, 3.6), "wall_cream", "GangHouses")
     add_box("House5_South_Roof-col", (-20.0, -7.0, 3.9), (9.8, 7.4, 0.8), "tile_roof_brown", "GangHouses")
     add_box("House5_Roof_Ridge", (-20.0, -7.0, 4.35), (9.9, 0.25, 0.12), "roof_ridge_dark", "GangHouses")
     add_house_entrance("House5", (-18.5, -3.46, 0.0), [(-21.5, -3.46, 1.4, 1.4, 1.1), (-16.2, -3.46, 1.4, 1.1, 1.1)], face_axis='Y', sign=1)
     add_box("House5_Terrace-col", (-18.5, -2.85, 0.05), (4.5, 1.2, 0.1), "kost_floor_paving", "GangHouses")
-    add_box("House5_Fence_L-col", (-22.5, -2.25, 0.5), (4.8, 0.12, 1.0), "iron_fence_black", "GangHouses")
-    add_box("House5_Gate_Post_L-col", (-20.0, -2.25, 0.6), (0.2, 0.2, 1.2), "kost_concrete_grey", "GangHouses")
-    add_box("House5_Iron_Gate", (-19.0, -2.25, 0.5), (1.8, 0.04, 1.0), "kost_railing_metal", "GangHouses")
-    add_box("House5_Gate_Post_R-col", (-18.0, -2.25, 0.6), (0.2, 0.2, 1.2), "kost_concrete_grey", "GangHouses")
-    add_box("House5_Fence_R-col", (-16.5, -2.25, 0.5), (2.8, 0.12, 1.0), "iron_fence_black", "GangHouses")
+
+    # Exposed Red Brick Base with Wrought Iron Spearhead Railing (X = -24.0 to -15.0)
+    add_box("House5_Brick_Base_L-col", (-21.6, -2.25, 0.18), (4.8, 0.22, 0.36), "brick_red", "GangHouses")
+    add_box("House5_Brick_Cap_L", (-21.6, -2.25, 0.38), (4.84, 0.24, 0.05), "curb_concrete", "GangHouses")
+    add_box("House5_Iron_L-col", (-21.6, -2.25, 0.72), (4.8, 0.06, 0.64), "iron_fence_black", "GangHouses")
+
+    # Stately Red Brick Pillars
+    add_box("House5_Gate_Post_L-col", (-19.2, -2.30, 0.65), (0.34, 0.34, 1.30), "brick_red", "GangHouses")
+    add_box("House5_Gate_Post_L_Cap", (-19.2, -2.30, 1.32), (0.38, 0.38, 0.06), "curb_concrete", "GangHouses")
+    add_box("House5_Gate_Post_R-col", (-18.0, -2.30, 0.65), (0.34, 0.34, 1.30), "brick_red", "GangHouses")
+    add_box("House5_Gate_Post_R_Cap", (-18.0, -2.30, 1.32), (0.38, 0.38, 0.06), "curb_concrete", "GangHouses")
+
+    add_spearhead_sliding_gate("SlidingGate_House5", (-18.6, -2.22, 0.5), size=(1.16, 0.04, 1.0))
+
+    add_box("House5_Brick_Base_R-col", (-16.5, -2.25, 0.18), (3.0, 0.22, 0.36), "brick_red", "GangHouses")
+    add_box("House5_Brick_Cap_R", (-16.5, -2.25, 0.38), (3.04, 0.24, 0.05), "curb_concrete", "GangHouses")
+    add_box("House5_Iron_R-col", (-16.5, -2.25, 0.72), (3.0, 0.06, 0.64), "iron_fence_black", "GangHouses")
+
+    # House 5 Side Enclosure Wall (West Boundary)
+    add_box("House5_Side_Wall_W-col", (-24.0, -4.625, 0.5), (0.15, 4.75, 1.0), "kost_concrete_grey", "GangHouses")
+    add_box("House5_Side_Wall_W_Cap", (-24.0, -4.625, 1.02), (0.19, 4.77, 0.05), "curb_concrete", "GangHouses")
 
     for i, px in enumerate([-17.2, -16.5, -15.8]):
         pot_mat = "paint_bucket" if i % 2 == 0 else "brick_red"
@@ -959,16 +1459,35 @@ def build_all():
         flw_mat = "flower_magenta" if i == 0 else ("flower_yellow" if i == 1 else "flower_magenta")
         add_bush_clump(f"House5_Plant_{i}", (px, -2.8, 0.32), 0.22, "GangHouses", flower_mat=flw_mat)
 
-    # HOUSE 6: East House with Picket Fence
+    # ──────── HOUSE 6 (East House with Natural Stone & Metallic Bronze Louvers) ────────
     add_box("House6_East-col", (17.5, -7.0, 1.8), (8.5, 6.8, 3.6), "wall_cream", "GangHouses")
     add_box("House6_East_Roof-col", (17.5, -7.0, 3.9), (8.8, 7.2, 0.8), "tile_roof_brown", "GangHouses")
     add_box("House6_Roof_Ridge", (17.5, -7.0, 4.35), (8.9, 0.25, 0.12), "roof_ridge_dark", "GangHouses")
     add_house_entrance("House6", (15.5, -3.56, 0.0), [(18.5, -3.56, 1.4, 1.4, 1.1)], face_axis='Y', sign=1)
-    add_box("House6_Picket_Fence-col", (17.5, -2.25, 0.4), (7.8, 0.08, 0.8), "wood_light", "GangHouses")
 
-    add_cylinder("House6_Tire_Planter", (13.5, -2.25, 0.16), 0.30, 0.22, "clothes_red", "GangHouses", vertices=10)
-    add_bush_clump("House6_Tire_Bush", (13.5, -2.25, 0.28), 0.25, "GangHouses", flower_mat="flower_yellow")
+    # Natural Stone Foundation with Bronze Vertical Louver Fence (X = 13.0 to 22.0)
+    add_box("House6_Stone_Base_L-col", (14.5, -2.25, 0.18), (3.0, 0.22, 0.36), "fence_stone_base", "GangHouses")
+    add_box("House6_Stone_Cap_L", (14.5, -2.25, 0.38), (3.04, 0.24, 0.05), "curb_concrete", "GangHouses")
+    add_box("House6_Bronze_L-col", (14.5, -2.25, 0.72), (3.0, 0.06, 0.64), "fence_bronze", "GangHouses")
 
+    # Natural Stone Gateposts
+    add_box("House6_Gate_Post_L-col", (16.0, -2.30, 0.65), (0.30, 0.30, 1.30), "fence_stone_base", "GangHouses")
+    add_box("House6_Gate_Post_L_Cap", (16.0, -2.30, 1.32), (0.34, 0.34, 0.06), "curb_concrete", "GangHouses")
+    add_box("House6_Gate_Post_R-col", (17.2, -2.30, 0.65), (0.30, 0.30, 1.30), "fence_stone_base", "GangHouses")
+    add_box("House6_Gate_Post_R_Cap", (17.2, -2.30, 1.32), (0.34, 0.34, 0.06), "curb_concrete", "GangHouses")
+
+    add_bronze_sliding_gate("SlidingGate_House6", (16.6, -2.22, 0.5), size=(1.16, 0.04, 1.0))
+
+    add_box("House6_Stone_Base_R-col", (19.6, -2.25, 0.18), (4.8, 0.22, 0.36), "fence_stone_base", "GangHouses")
+    add_box("House6_Stone_Cap_R", (19.6, -2.25, 0.38), (4.84, 0.24, 0.05), "curb_concrete", "GangHouses")
+    add_box("House6_Bronze_R-col", (19.6, -2.25, 0.72), (4.8, 0.06, 0.64), "fence_bronze", "GangHouses")
+
+    # House 6 Side Enclosure Wall (East Boundary near teleport portal)
+    add_box("House6_Side_Wall_E-col", (22.0, -4.625, 0.5), (0.15, 4.75, 1.0), "kost_concrete_grey", "GangHouses")
+    add_box("House6_Side_Wall_E_Cap", (22.0, -4.625, 1.02), (0.19, 4.77, 0.05), "curb_concrete", "GangHouses")
+
+    add_cylinder("House6_Tire_Planter", (14.0, -2.45, 0.16), 0.30, 0.22, "clothes_red", "GangHouses", vertices=10)
+    add_bush_clump("House6_Tire_Bush", (14.0, -2.45, 0.28), 0.25, "GangHouses", flower_mat="flower_yellow")
     # ─── 12. TREES & FLORA (ZERO BANANA TREES, BEAUTIFUL FACETED TREES & PALMS) ───
     stylized_trees = [
         ("Tree_N1", (-10.5, 14.0, 0.0), 4.4, 0.20, 1.5),
@@ -988,7 +1507,7 @@ def build_all():
         ("Tree_S4", (8.0, -13.0, 0.0), 4.4, 0.19, 1.5),
         ("Tree_S5", (15.0, -13.0, 0.0), 4.1, 0.18, 1.4),
         ("Tree_S6", (22.0, -11.0, 0.0), 4.2, 0.18, 1.4),
-        ("Tree_Yard_H1", (-4.2, -3.5, 0.0), 3.6, 0.15, 1.2)
+        ("Tree_Yard_H1", (-4.5, -2.65, 0.0), 3.4, 0.15, 0.75)
     ]
     for tname, pos, th, tr, cr in stylized_trees:
         add_stylized_tree(tname, pos, th, tr, cr, col_name="GangEnvironment")
@@ -997,29 +1516,29 @@ def build_all():
     add_palm_tree("Palm_West", (-25.0, 7.0, 0.0), height=5.5, col_name="GangEnvironment")
     add_palm_tree("Palm_East", (22.0, -4.5, 0.0), height=5.2, col_name="GangEnvironment")
 
-    # Bougainvillea Bush Clumps along street fences
+    # Bougainvillea Bush Clumps inside house lawns and gardens (zero fence clipping)
     flower_bushes = [
-        ("Bush_F1", (-5.5, -2.4, 0.0), 0.45, "flower_magenta"),
-        ("Bush_F2", (-2.0, -2.4, 0.0), 0.40, "flower_yellow"),
-        ("Bush_F3", (3.2, -2.4, 0.0), 0.42, "flower_magenta"),
-        ("Bush_F4", (11.8, -2.4, 0.0), 0.45, "flower_yellow"),
-        ("Bush_F5", (-14.0, 2.4, 0.0), 0.42, "flower_magenta"),
-        ("Bush_F6", (7.8, 2.4, 0.0), 0.40, "flower_yellow")
+        ("Bush_F1", (-3.5, -3.2, 0.0), 0.45, "flower_magenta"), # House 1 front lawn
+        ("Bush_F2", (-0.8, -3.3, 0.0), 0.40, "flower_yellow"),  # House 1 front lawn
+        ("Bush_F3", (2.4, -3.2, 0.0), 0.42, "flower_magenta"),  # House 1 front lawn
+        ("Bush_F4", (11.2, -3.2, 0.0), 0.45, "flower_yellow"),  # House 3 front yard
+        ("Bush_F5", (-14.2, 3.2, 0.0), 0.42, "flower_magenta"), # House 4 east yard
+        ("Bush_F6", (7.4, 3.2, 0.0), 0.35, "flower_yellow")    # Kost east garden (cleared of Kost outer wall)
     ]
     for bname, bpos, br, bmat in flower_bushes:
         add_bush_clump(bname, bpos, br, col_name="GangEnvironment", flower_mat=bmat)
 
     # ─── 13. STREET LIGHT POLES, OVERHEAD WIRES & TELEPORT GATE ───
-    for px, py in [(-12.0, 2.2), (8.5, 2.2)]:
-        add_cylinder(f"Tiang_Listrik_{px}", (px, py, 3.5), 0.10, 7.0, "kost_concrete_grey", "GangInfrastructure", vertices=8)
-        add_box(f"Trafo_Box_{px}", (px, py, 5.5), (0.4, 0.4, 0.6), "kost_dark_grey", "GangInfrastructure")
-        add_box(f"Lampu_Arm_{px}", (px, py - 0.4, 5.8), (0.05, 0.8, 0.05), "kost_railing_metal", "GangInfrastructure")
-        add_cylinder(f"Lampu_Cap_{px}", (px, py - 0.75, 5.75), 0.15, 0.08, "kost_dark_grey", "GangInfrastructure", vertices=8)
-        add_box(f"Lampu_Bulb_{px}", (px, py - 0.75, 5.68), (0.1, 0.1, 0.1), "lamp_bulb", "GangInfrastructure")
-        add_cylinder(f"Cable_Coil_{px}", (px, py + 0.12, 4.2), 0.25, 0.06, "kost_dark_grey", "GangInfrastructure", rot=(math.radians(90), 0, 0), vertices=10)
+    for px, py, tag in [(-12.0, 2.2, "-12.0"), (8.30, 1.80, "8.5")]:
+        add_cylinder(f"Tiang_Listrik_{tag}", (px, py, 3.5), 0.10, 7.0, "kost_concrete_grey", "GangInfrastructure", vertices=8)
+        add_box(f"Trafo_Box_{tag}", (px, py, 5.5), (0.4, 0.4, 0.6), "kost_dark_grey", "GangInfrastructure")
+        add_box(f"Lampu_Arm_{tag}", (px, py - 0.4, 5.8), (0.05, 0.8, 0.05), "kost_railing_metal", "GangInfrastructure")
+        add_cylinder(f"Lampu_Cap_{tag}", (px, py - 0.75, 5.75), 0.15, 0.08, "kost_dark_grey", "GangInfrastructure", vertices=8)
+        add_box(f"Lampu_Bulb_{tag}", (px, py - 0.75, 5.68), (0.1, 0.1, 0.1), "lamp_bulb", "GangInfrastructure")
+        add_cylinder(f"Cable_Coil_{tag}", (px, py + 0.12, 4.2), 0.25, 0.06, "kost_dark_grey", "GangInfrastructure", rot=(math.radians(90), 0, 0), vertices=10)
 
-    add_angled_bar("Kabel_Listrik_1", (-12.0, 2.1, 6.6), (8.5, 2.1, 6.6), 0.02, 0.02, "kost_dark_grey", "GangInfrastructure")
-    add_angled_bar("Kabel_Listrik_2", (-12.0, 2.2, 6.4), (8.5, 2.2, 6.4), 0.02, 0.02, "kost_dark_grey", "GangInfrastructure")
+    add_angled_bar("Kabel_Listrik_1", (-12.0, 2.1, 6.6), (8.30, 1.75, 6.6), 0.02, 0.02, "kost_dark_grey", "GangInfrastructure")
+    add_angled_bar("Kabel_Listrik_2", (-12.0, 2.2, 6.4), (8.30, 1.85, 6.4), 0.02, 0.02, "kost_dark_grey", "GangInfrastructure")
 
     # Campus Teleport Gate
     add_box("Teleport_Pole_L-col", (20.0, 2.0, 1.8), (0.2, 0.2, 3.6), "kost_concrete_grey", "TeleportArea")
@@ -1031,11 +1550,13 @@ def build_all():
 
     # ─── 14. SAVE AND EXPORT GLB ───
     blend_path = "/home/haelahpx/Documents/GitHub/gameproject01/game/new-game-project/assets/models/kampung_kos_scene.blend"
+    blend_path2 = "/home/haelahpx/Documents/GitHub/gameproject01/game/new-game-project/assets/models/kampung_kos_gang.blend"
     glb_path = "/home/haelahpx/Documents/GitHub/gameproject01/game/new-game-project/assets/models/kampung_kos_gang.glb"
 
     os.makedirs(os.path.dirname(blend_path), exist_ok=True)
     bpy.ops.wm.save_as_mainfile(filepath=blend_path)
-    print(f"Saved Blend file to: {blend_path}")
+    bpy.ops.wm.save_as_mainfile(filepath=blend_path2)
+    print(f"Saved Blend files to: {blend_path} and {blend_path2}")
 
     bpy.ops.export_scene.gltf(
         filepath=glb_path,

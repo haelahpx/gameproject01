@@ -53,15 +53,15 @@ func _init():
 				col_count += 1
 			
 			# Apply glass material override for transparent elements
-			if "Glass" in node_name or "Showcase_Shelf" in node_name:
-				if "Showcase" in node_name:
+			if "Glass" in node_name or "Shelf" in node_name or "Window" in node_name or ("Toples" in node_name and not "Lid" in node_name and not "Fill" in node_name):
+				if "Showcase" in node_name or "Warteg" in node_name or "Kerupuk" in node_name or "Gelas" in node_name:
 					child.material_override = showcase_glass_mat
-				elif "Player_Window" in node_name:
+				elif "Player_Window" in node_name or "WinStreet" in node_name or "Win_F1" in node_name or "Win_F2" in node_name:
 					child.material_override = window_glass_mat
 				else:
 					child.material_override = frosted_glass_mat
 				glass_count += 1
-			elif "Water" in node_name:
+			elif "Water" in node_name or "Air_Teh" in node_name:
 				child.material_override = water_mat
 				glass_count += 1
 

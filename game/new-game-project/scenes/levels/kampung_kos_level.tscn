@@ -6,6 +6,8 @@
 [ext_resource type="Script" path="res://scripts/core/interactive_prop.gd" id="4_prop"]
 [ext_resource type="Script" path="res://scripts/core/scene_teleport_trigger.gd" id="5_teleport"]
 [ext_resource type="Script" path="res://scripts/core/interactive_bed.gd" id="6_bed"]
+[ext_resource type="Script" path="res://scripts/core/interactive_sliding_gate.gd" id="7_gate"]
+
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_level"]
 sky_top_color = Color(0.32, 0.54, 0.82, 1)
@@ -25,6 +27,10 @@ ambient_light_energy = 0.35
 tonemap_mode = 3
 tonemap_exposure = 0.95
 glow_enabled = false
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_sliding_gate"]
+size = Vector3(1.18, 1.0, 0.12)
+
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_player_door"]
 size = Vector3(0.08, 2.1, 1.0)
@@ -105,9 +111,6 @@ size = Vector3(0.6, 0.6, 0.6)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_yard"]
 size = Vector3(2.5, 1.5, 1.2)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_jemuran"]
-size = Vector3(2.2, 1.2, 0.8)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_teleport"]
 size = Vector3(3.5, 3.0, 4.0)
@@ -314,55 +317,37 @@ prompt_message = "Periksa Sepeda Motor"
 shape = SubResource("BoxShape3D_motor")
 
 [node name="Interact_Warsun_Etalase" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, 1.2, -5.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.0, 1.3, -4.425)
 script = ExtResource("4_prop")
-inspection_text = "Etalase Warsun Bahari berkaca transparan: Terlihat jelas ayam goreng serundeng, telur balado pedas, tempe orek, sayur lodeh, mie goreng, ayam bakar, gorengan renyah, dan aneka sambal segar di dalam nampan stainless steel!"
-prompt_message = "Periksa Etalase Makanan"
+inspection_text = "Etalase kaca dua tingkat Warung Kondang: Berjajar nampan stainless steel berisi ayam goreng lengkuas, telur balado pedas, orek tempe, sayur lodeh, mie goreng, serta aneka lauk lezat lainnya di atas piring susun."
+prompt_message = "Periksa Etalase Warung Kondang"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_Warsun_Etalase"]
 shape = SubResource("BoxShape3D_warsun_showcase")
 
 [node name="Interact_Warsun_Meja" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, 0.7, -3.6)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.0, 0.90, -3.88)
 script = ExtResource("4_prop")
-inspection_text = "Meja makan panjang dan bangku kayu oranye khas warteg/warsun. Ada kaleng kerupuk blek biru, teko teh gratisan, dan wadah sendok garpu."
-prompt_message = "Periksa Meja Makan Warsun"
+inspection_text = "Meja bar berubin putih bersih dengan lis hijau dan bangku panjang letter L khas warteg. Di atas meja ada teko air pink, piring nasi rames, gelas es teh, kotak tisu, dan sambal ulek."
+prompt_message = "Periksa Meja Bar Warung Kondang"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_Warsun_Meja"]
 shape = SubResource("BoxShape3D_warsun_table")
 
 [node name="Interact_Warsun_Kerupuk" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.5, 1.0, -3.6)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.225, 1.12, -7.15)
 script = ExtResource("4_prop")
-inspection_text = "Kaleng kerupuk blek biru legendaris dengan kaca bulat. Kerupuk putih kriuk gurih teman wajib makan nasi rames."
-prompt_message = "Periksa Kaleng Kerupuk"
+inspection_text = "Kaleng kerupuk blek biru legendaris dengan tutup seng dan kaca bulat di sudut meja bar. Teman setia makan nasi rames!"
+prompt_message = "Periksa Kaleng Kerupuk Blek"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_Warsun_Kerupuk"]
 shape = SubResource("BoxShape3D_kerupuk")
 
-[node name="Interact_House1_Yard" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 1.0, 2.4)
-script = ExtResource("4_prop")
-inspection_text = "Pekarangan rumah warga yang rapi dengan pagar besi hitam, halaman rumput hijau asri, dan pohon hias di depan rumah."
-prompt_message = "Periksa Rumah Berpagar"
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_House1_Yard"]
-shape = SubResource("BoxShape3D_yard")
-
-[node name="Interact_Jemuran" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.8, 0.8, 2.5)
-script = ExtResource("4_prop")
-inspection_text = "Jemuran pakaian warna-warni di pinggir gang, ditiup angin sepoi-sepoi biar lekas kering."
-prompt_message = "Periksa Jemuran Baju"
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_Jemuran"]
-shape = SubResource("BoxShape3D_jemuran")
-
 [node name="Interact_Signboard" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0, -2.2)
 script = ExtResource("4_prop")
-inspection_text = "Papan Nama Monumental: 'KOST WINDAH - PUTRA & PUTRI'. Kos-kosan nyaman, murah, dan asri di tengah gang kampung."
-prompt_message = "Baca Plang Kos Windah"
+inspection_text = "Papan Nama Monumental: 'KOST KONDANG - PUTRA & PUTRI'. Kos-kosan nyaman, murah, dan asri di tengah gang kampung."
+prompt_message = "Baca Plang Kos Kondang"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_Signboard"]
 shape = SubResource("BoxShape3D_signboard")
@@ -474,6 +459,55 @@ fade_duration = 0.8
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="SceneTeleportTrigger"]
 shape = SubResource("BoxShape3D_teleport")
+
+[node name="SlidingGate_House1" type="StaticBody3D" parent="." node_paths=PackedStringArray("gate_body")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6, 0.5, 2.22)
+script = ExtResource("7_gate")
+slide_offset = Vector3(1.15, 0, 0)
+gate_body = NodePath("../ModelGeometry/SlidingGate_House1")
+open_prompt = "Buka Pagar"
+close_prompt = "Tutup Pagar"
+gate_name = "Rumah 01"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SlidingGate_House1"]
+shape = SubResource("BoxShape3D_sliding_gate")
+
+
+[node name="SlidingGate_House3" type="StaticBody3D" parent="." node_paths=PackedStringArray("gate_body")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.8, 0.5, 2.22)
+script = ExtResource("7_gate")
+slide_offset = Vector3(1.15, 0, 0)
+gate_body = NodePath("../ModelGeometry/SlidingGate_House3")
+open_prompt = "Buka Pagar"
+close_prompt = "Tutup Pagar"
+gate_name = "Rumah 03"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SlidingGate_House3"]
+shape = SubResource("BoxShape3D_sliding_gate")
+
+[node name="SlidingGate_House5" type="StaticBody3D" parent="." node_paths=PackedStringArray("gate_body")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18.6, 0.5, 2.22)
+script = ExtResource("7_gate")
+slide_offset = Vector3(-1.15, 0, 0)
+gate_body = NodePath("../ModelGeometry/SlidingGate_House5")
+open_prompt = "Buka Pagar"
+close_prompt = "Tutup Pagar"
+gate_name = "Rumah 05"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SlidingGate_House5"]
+shape = SubResource("BoxShape3D_sliding_gate")
+
+[node name="SlidingGate_House6" type="StaticBody3D" parent="." node_paths=PackedStringArray("gate_body")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.6, 0.5, 2.22)
+script = ExtResource("7_gate")
+slide_offset = Vector3(1.15, 0, 0)
+gate_body = NodePath("../ModelGeometry/SlidingGate_House6")
+open_prompt = "Buka Pagar"
+close_prompt = "Tutup Pagar"
+gate_name = "Rumah 06"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SlidingGate_House6"]
+shape = SubResource("BoxShape3D_sliding_gate")
 
 [node name="Player" parent="." instance=ExtResource("2_player")]
 transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -5.5, 0.2, -3.8)
