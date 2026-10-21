@@ -467,6 +467,25 @@ def build_all():
     create_mat("dish_terong_balado", (0.60, 0.10, 0.22), roughness=0.6)
     create_mat("dish_sambal_ijo", (0.16, 0.55, 0.14), roughness=0.6)
 
+    # Materials for Kampung Extension & Poor Starter Kost
+    create_mat("wall_worn_concrete", (0.48, 0.49, 0.50), roughness=0.92)
+    create_mat("wall_worn_concrete_dark", (0.36, 0.37, 0.38), roughness=0.95)
+    create_mat("tin_roof_rusty", (0.46, 0.38, 0.32), roughness=0.75, metallic=0.35)
+    create_mat("wood_weathered", (0.38, 0.30, 0.22), roughness=0.88)
+    create_mat("wood_bamboo", (0.75, 0.65, 0.40), roughness=0.75)
+    create_mat("lpg_gas_green", (0.12, 0.72, 0.22), roughness=0.35)
+    create_mat("aqua_gallon_blue", (0.12, 0.55, 0.88), roughness=0.15, alpha=0.55)
+    create_mat("mattress_foam_worn", (0.25, 0.40, 0.60), roughness=0.92)
+    create_mat("clothesline_wire", (0.30, 0.30, 0.30), roughness=0.5, metallic=0.6)
+    create_mat("cermin_mirror_orange", (0.90, 0.40, 0.08), roughness=0.3)
+    create_mat("mirror_glass", (0.92, 0.95, 0.98), roughness=0.05, metallic=0.95)
+    create_mat("wall_sage_green", (0.48, 0.65, 0.48), roughness=0.8)
+    create_mat("wall_sky_blue", (0.42, 0.65, 0.82), roughness=0.8)
+    create_mat("wall_soft_pink", (0.86, 0.65, 0.62), roughness=0.8)
+    create_mat("wall_lavender", (0.70, 0.62, 0.78), roughness=0.8)
+    create_mat("wall_forest_green", (0.18, 0.38, 0.22), roughness=0.8)
+    create_mat("roof_zinc_blue", (0.22, 0.42, 0.60), roughness=0.5, metallic=0.4)
+
     # ─── 2. GROUND, ROAD & STREET INFRASTRUCTURE ───
     add_box("World_Grass_Ground-col", (0.0, 3.0, -0.12), (90.0, 70.0, 0.15), "grass_lawn", "GangEnvironment")
     add_box("Gang_Road_Main-col", (-3.0, 0, -0.04), (60.0, 4.0, 0.08), "road_asphalt", "GangRoad")
@@ -1116,6 +1135,23 @@ def build_all():
                 add_box(f"{name_prefix}_Win_Mullion_{idx}", (wx, wy, wz), (0.04, 0.06, w_h), "kost_dark_grey", "GangHouses")
                 add_box(f"{name_prefix}_Window_Glass_{idx}", (wx, wy + sign * 0.02, wz), (w_w - 0.08, 0.02, w_h - 0.08), "glass_frosted", "GangHouses")
                 add_box(f"{name_prefix}_Win_Roster_{idx}", (wx, wy + sign * 0.02, wz + w_h/2.0 + 0.15), (w_w - 0.10, 0.04, 0.16), "roster_vent", "GangHouses")
+        elif face_axis == 'X':
+            add_box(f"{name_prefix}_Door_Frame_L", (dx, dy - 0.48, dz + 1.05), (0.08, 0.06, 2.15), "kost_dark_grey", "GangHouses")
+            add_box(f"{name_prefix}_Door_Frame_R", (dx, dy + 0.48, dz + 1.05), (0.08, 0.06, 2.15), "kost_dark_grey", "GangHouses")
+            add_box(f"{name_prefix}_Door_Frame_Top", (dx, dy, dz + 2.15), (0.08, 1.02, 0.06), "kost_dark_grey", "GangHouses")
+            add_box(f"{name_prefix}_Door_Leaf", (dx + sign * 0.02, dy, dz + 1.05), (0.04, 0.90, 2.08), "wood_door", "GangHouses")
+            add_box(f"{name_prefix}_Door_Knob", (dx + sign * 0.05, dy + 0.35, dz + 1.05), (0.05, 0.05, 0.05), "kost_railing_metal", "GangHouses")
+            add_box(f"{name_prefix}_Door_Roster", (dx + sign * 0.02, dy, dz + 2.30), (0.04, 0.65, 0.18), "roster_vent", "GangHouses")
+            add_doormat(f"Doormat_{name_prefix}", (dx + sign * 0.35, dy, dz), "clothes_red", "GangHouses")
+
+            for idx, (wx, wy, wz, w_w, w_h) in enumerate(win_centers):
+                add_box(f"{name_prefix}_Win_Sill_{idx}", (wx, wy, wz - w_h/2.0), (0.10, w_w + 0.08, 0.05), "kost_dark_grey", "GangHouses")
+                add_box(f"{name_prefix}_Win_Top_{idx}", (wx, wy, wz + w_h/2.0), (0.08, w_w + 0.08, 0.05), "kost_dark_grey", "GangHouses")
+                add_box(f"{name_prefix}_Win_Jamb_L_{idx}", (wx, wy - w_w/2.0, wz), (0.08, 0.05, w_h), "kost_dark_grey", "GangHouses")
+                add_box(f"{name_prefix}_Win_Jamb_R_{idx}", (wx, wy + w_w/2.0, wz), (0.08, 0.05, w_h), "kost_dark_grey", "GangHouses")
+                add_box(f"{name_prefix}_Win_Mullion_{idx}", (wx, wy, wz), (0.06, 0.04, w_h), "kost_dark_grey", "GangHouses")
+                add_box(f"{name_prefix}_Window_Glass_{idx}", (wx + sign * 0.02, wy, wz), (0.02, w_w - 0.08, w_h - 0.08), "glass_frosted", "GangHouses")
+                add_box(f"{name_prefix}_Win_Roster_{idx}", (wx + sign * 0.02, wy, wz + w_h/2.0 + 0.15), (0.04, w_w - 0.10, 0.16), "roster_vent", "GangHouses")
 
     # ─── UNIQUE SLIDING GATE BUILDERS FOR EACH HOUSE STYLE ───
     def add_conwood_sliding_gate(name, pos, size=(1.16, 0.04, 1.0), col_name="GangHouses"):
@@ -1548,7 +1584,386 @@ def build_all():
     add_box("Teleport_Sign_Board", (20.0, 0.0, 3.9), (0.08, 3.2, 0.5), "pvc_blue", "TeleportArea")
     add_angled_bar("Teleport_Chain", (20.0, -1.8, 0.6), (20.0, 1.8, 0.6), 0.04, 0.04, "kost_railing_metal", "TeleportArea")
 
-    # ─── 14. SAVE AND EXPORT GLB ───
+    # ─── 14. KAMPUNG EXTENSION (PERTIGAAN, BELOKAN, & CONNECTING ROADS) ───
+    # Ground extension for West & South expansion
+    add_box("World_Grass_Ground_West-col", (-45.0, -10.0, -0.12), (70.0, 80.0, 0.15), "grass_lawn", "GangEnvironment")
+
+    # Main Road West Extension (Along Y=0 from X=-30.0 to X=-60.0)
+    add_box("Gang_Road_West_Ext-col", (-46.0, 0, -0.04), (28.0, 4.0, 0.08), "road_asphalt", "GangRoad")
+    for xi in range(-58, -33, 3):
+        add_box(f"Road_Ext_Stripe_{xi}", (float(xi), 0.0, 0.003), (1.5, 0.12, 0.005), "road_marking_white", "GangRoad")
+
+    # Branch Road South (Pertigaan at X=-32.0 running South to Y=-22.0)
+    add_box("Gang_Road_South-col", (-32.0, -12.0, -0.04), (3.8, 20.0, 0.08), "road_asphalt", "GangRoad")
+    for yi in range(-5, -20, -3):
+        add_box(f"Road_South_Stripe_{yi}", (-32.0, float(yi), 0.003), (0.12, 1.5, 0.005), "road_marking_white", "GangRoad")
+
+    # Turned Gang Alley (Belokan at Y=-22.0 turning West to X=-58.0)
+    add_box("Gang_Road_Turn_West-col", (-45.0, -22.0, -0.04), (26.0, 3.8, 0.08), "road_asphalt_worn", "GangRoad")
+
+    # Road Patches
+    ext_patches = [
+        (-40.0, 0.5, 2.2, 1.0, "road_asphalt_dark"),
+        (-50.0, -0.4, 1.9, 1.1, "road_asphalt_worn"),
+        (-32.0, -8.0, 1.6, 1.2, "road_asphalt_dark"),
+        (-32.0, -16.0, 1.4, 1.5, "road_asphalt_worn"),
+        (-40.0, -22.0, 1.8, 1.2, "road_asphalt_dark"),
+        (-48.0, -21.8, 2.0, 1.3, "road_asphalt_worn")
+    ]
+    for pi, (px, py, pw, pl, pmat) in enumerate(ext_patches):
+        add_box(f"Road_Ext_Patch_{pi}", (px, py, 0.002), (pw, pl, 0.004), pmat, "GangRoad")
+
+    def build_curb_segment_y(prefix, y_start, y_end, x_pos, block_len=1.0):
+        y_min = min(y_start, y_end)
+        y_max = max(y_start, y_end)
+        total_len = y_max - y_min
+        if total_len <= 0.05:
+            return
+        n_blocks = max(1, int(round(total_len / block_len)))
+        actual_len = total_len / n_blocks
+        for i in range(n_blocks):
+            by = y_min + (i + 0.5) * actual_len
+            color_idx = int(round(by / 1.0))
+            cmat = "curb_black" if color_idx % 2 == 0 else "curb_white"
+            add_box(f"{prefix}_{i}_{by:.2f}-col", (x_pos, by, 0.05), (0.125, actual_len, 0.10), cmat, "GangRoad")
+
+    # Extended Road Curbs
+    build_curb_segment("Curb_N_Ext", -60.0, -24.8, 2.0375)
+    build_curb_segment("Curb_S_Ext", -60.0, -34.0, -2.0375)
+    build_curb_segment_y("Curb_GS_East", -22.0, -2.0, -30.05)
+    build_curb_segment_y("Curb_GS_West", -20.1, -2.0, -33.95)
+    build_curb_segment("Curb_GB_North", -56.0, -33.95, -20.05)
+    build_curb_segment("Curb_GB_South", -38.0, -30.05, -23.95)
+
+    # ─── 15. POS RONDA SISKAMLING & CERMIN CEMBUNG (PERTIGAAN CORNER X=-32, Y=4.0) ───
+    pr_x, pr_y = -32.0, 4.0
+    for cdx in [-1.2, 1.2]:
+        for cdy in [-1.0, 1.0]:
+            add_box(f"PosRonda_Footing_{cdx}_{cdy}-col", (pr_x + cdx, pr_y + cdy, 0.12), (0.25, 0.25, 0.24), "curb_concrete", "GangInfrastructure")
+            add_cylinder(f"PosRonda_Post_{cdx}_{cdy}-col", (pr_x + cdx, pr_y + cdy, 1.35), 0.07, 2.3, "wood_bamboo", "GangInfrastructure", vertices=7)
+
+    add_box("PosRonda_Floor-col", (pr_x, pr_y, 0.42), (2.5, 2.1, 0.10), "wood_bamboo", "GangInfrastructure")
+    add_box("PosRonda_Step-col", (pr_x, pr_y - 1.15, 0.18), (0.80, 0.35, 0.16), "curb_concrete", "GangInfrastructure")
+    add_box("PosRonda_Bench_Back", (pr_x, pr_y + 0.90, 0.65), (2.3, 0.30, 0.04), "wood_weathered", "GangInfrastructure")
+    add_box("PosRonda_Bench_Left", (pr_x - 1.05, pr_y, 0.65), (0.30, 1.8, 0.04), "wood_weathered", "GangInfrastructure")
+    add_box("PosRonda_Bench_Right", (pr_x + 1.05, pr_y, 0.65), (0.30, 1.8, 0.04), "wood_weathered", "GangInfrastructure")
+
+    add_box("PosRonda_Roof-col", (pr_x, pr_y, 2.75), (2.9, 2.5, 0.60), "tile_roof_brown", "GangInfrastructure")
+    add_box("PosRonda_Roof_Ridge", (pr_x, pr_y, 3.10), (1.2, 0.20, 0.12), "roof_ridge_dark", "GangInfrastructure")
+
+    add_cylinder("Kentongan_Body", (pr_x + 0.85, pr_y - 0.90, 1.85), 0.09, 0.65, "wood_door", "GangInfrastructure", vertices=8)
+    add_box("Kentongan_Slit", (pr_x + 0.85, pr_y - 0.98, 1.85), (0.03, 0.04, 0.45), "kost_dark_grey", "GangInfrastructure")
+    add_cylinder("Kentongan_Beater", (pr_x + 0.95, pr_y - 0.90, 1.75), 0.025, 0.35, "wood_weathered", "GangInfrastructure", rot=(0, math.radians(25), 0))
+
+    add_box("PosRonda_Banner", (pr_x, pr_y - 1.02, 2.30), (2.1, 0.03, 0.30), "curb_white", "GangInfrastructure")
+    create_3d_text("PosRonda_Text", "POS RONDA RT 04 / RW 02", (pr_x, pr_y - 1.04, 2.30), (math.radians(90), 0, 0), size=0.12, extrude=0.02, mat_name="dish_telur_balado", col_name="GangInfrastructure")
+
+    # Cermin Cembung Tikungan Pertigaan
+    add_cylinder("Cermin_Pole-col", (-33.8, -2.2, 1.5), 0.04, 3.0, "cermin_mirror_orange", "GangInfrastructure", vertices=8)
+    add_box("Cermin_Cap", (-33.8, -2.2, 3.0), (0.65, 0.65, 0.08), "cermin_mirror_orange", "GangInfrastructure", rot=(0, math.radians(45), math.radians(45)))
+    add_icosphere("Cermin_Reflector", (-33.75, -2.15, 3.0), 0.28, "mirror_glass", "GangInfrastructure", subdivisions=2, scale=(1.0, 0.3, 1.0))
+
+    # ─── 16. KIOS TAMBAL BAN & ISI ANGIN (BELOKAN CORNER X=-29.2, Y=-21.5) ───
+    tb_x, tb_y = -29.2, -21.5
+    add_box("TambalBan_Kiosk_Body-col", (tb_x, tb_y, 1.25), (1.8, 1.8, 2.4), "wood_weathered", "GangInfrastructure")
+    add_box("TambalBan_Kiosk_Roof-col", (tb_x, tb_y, 2.50), (2.1, 2.1, 0.15), "tin_roof_rusty", "GangInfrastructure", rot=(math.radians(5), 0, 0))
+    add_box("TambalBan_Counter-col", (tb_x - 0.6, tb_y, 0.50), (0.45, 1.5, 0.90), "wood_weathered", "GangInfrastructure")
+
+    for ti, tz in enumerate([0.10, 0.28, 0.46]):
+        add_cylinder(f"TambalBan_Tire_{ti}-col", (tb_x - 1.3, tb_y - 0.6, tz), 0.26, 0.16, "motor_tire", "GangInfrastructure", vertices=10)
+
+    add_cylinder("Compressor_Tank-col", (tb_x - 1.2, tb_y + 0.6, 0.28), 0.18, 0.55, "clothes_red", "GangInfrastructure", rot=(0, math.radians(90), 0), vertices=8)
+    add_box("Compressor_Motor", (tb_x - 1.2, tb_y + 0.6, 0.55), (0.24, 0.30, 0.22), "kost_dark_grey", "GangInfrastructure")
+
+    add_box("TambalBan_Sign", (tb_x - 0.92, tb_y, 2.2), (0.04, 1.6, 0.35), "warsun_yellow", "GangInfrastructure")
+    create_3d_text("TambalBan_Text", "TAMBAL BAN & ISI ANGIN", (tb_x - 0.95, tb_y, 2.2), (math.radians(90), 0, math.radians(-90)), size=0.10, extrude=0.02, mat_name="dish_telur_balado", col_name="GangInfrastructure")
+
+    # ─── 17. EXTREMELY POOR STARTER KOST COMPOUND (KOS PETAKAN SENG 1-LANTAI) ───
+    # Courtyard ground with rainwater puddle
+    add_box("PoorKost_Yard_Ground-col", (-44.0, -26.0, 0.02), (15.0, 6.5, 0.06), "road_asphalt_worn", "PoorKost")
+    add_box("PoorKost_Puddle_1", (-46.5, -25.5, 0.052), (2.4, 1.6, 0.005), "wc_water", "PoorKost")
+    add_box("PoorKost_Mud_Edge", (-46.5, -25.5, 0.051), (2.8, 1.9, 0.004), "wall_worn_concrete_dark", "PoorKost")
+
+    # Raised Front Veranda (Teras depan kos)
+    add_box("PoorKost_Front_Veranda-col", (-44.0, -27.15, 0.06), (12.4, 0.90, 0.12), "curb_concrete", "PoorKost")
+
+    # Room Floors (Lantai semen ekspos setiap kamar & WC)
+    add_box("PoorKost_Floor_R3-col", (-48.0, -30.0, 0.05), (4.0, 5.0, 0.10), "wall_worn_concrete", "PoorKost")
+    add_box("PoorKost_Floor_R1-col", (-44.0, -30.0, 0.05), (4.0, 5.0, 0.10), "wall_worn_concrete", "PoorKost")
+    add_box("PoorKost_Floor_R2-col", (-41.0, -30.0, 0.05), (2.0, 5.0, 0.10), "wall_worn_concrete", "PoorKost")
+    add_box("PoorKost_Floor_WC-col", (-39.0, -30.0, 0.05), (2.0, 5.0, 0.10), "wall_worn_concrete", "PoorKost")
+
+    # Sloping Rusted Corrugated Zinc Roof with Front & Side Overhangs (Rotated 5.5 deg)
+    add_box("PoorKost_Main_Roof-col", (-44.0, -29.50, 2.82), (12.8, 6.6, 0.08), "tin_roof_rusty", "PoorKost", rot=(math.radians(5.5), 0, 0))
+    add_box("PoorKost_Roof_Ridge", (-44.0, -32.70, 3.14), (12.9, 0.30, 0.12), "tin_roof_rusty", "PoorKost")
+
+    # Solid Back Wall (Reaches roof underside completely - ZERO HOLES!)
+    add_box("PoorKost_Back_Wall-col", (-44.0, -32.50, 1.55), (12.2, 0.22, 3.10), "wall_worn_concrete", "PoorKost")
+
+    # Solid West & East Exterior Side Walls with Angled Gable Caps (ZERO HOLES ON SIDES!)
+    add_box("PoorKost_West_Wall-col", (-50.0, -30.0, 1.30), (0.22, 5.22, 2.60), "wall_worn_concrete", "PoorKost")
+    add_box("PoorKost_West_Wall_Gable", (-50.0, -30.0, 2.76), (0.22, 5.10, 0.55), "wall_worn_concrete", "PoorKost", rot=(math.radians(5.5), 0, 0))
+    add_box("PoorKost_East_Wall-col", (-38.0, -30.0, 1.30), (0.22, 5.22, 2.60), "wall_worn_concrete", "PoorKost")
+    add_box("PoorKost_East_Wall_Gable", (-38.0, -30.0, 2.76), (0.22, 5.10, 0.55), "wall_worn_concrete", "PoorKost", rot=(math.radians(5.5), 0, 0))
+
+    # Room Partition Divider Walls (Sealed all the way to roof - ZERO HOLES BETWEEN ROOMS!)
+    add_box("PoorKost_Divider_1-col", (-46.0, -30.0, 1.30), (0.16, 4.90, 2.60), "wall_worn_concrete", "PoorKost")
+    add_box("PoorKost_Divider_1_Top", (-46.0, -30.0, 2.76), (0.16, 4.88, 0.55), "wall_worn_concrete", "PoorKost", rot=(math.radians(5.5), 0, 0))
+    add_box("PoorKost_Divider_2-col", (-42.0, -30.0, 1.30), (0.16, 4.90, 2.60), "wall_worn_concrete", "PoorKost")
+    add_box("PoorKost_Divider_2_Top", (-42.0, -30.0, 2.76), (0.16, 4.88, 0.55), "wall_worn_concrete", "PoorKost", rot=(math.radians(5.5), 0, 0))
+    add_box("PoorKost_Divider_3-col", (-40.0, -30.0, 1.30), (0.16, 4.90, 2.60), "wall_worn_concrete", "PoorKost")
+    add_box("PoorKost_Divider_3_Top", (-40.0, -30.0, 2.76), (0.16, 4.88, 0.55), "wall_worn_concrete", "PoorKost", rot=(math.radians(5.5), 0, 0))
+
+    # Realistic Triplek Ceilings Inside Bedrooms (Plafon kamar - no open sky when looking up!)
+    add_box("PoorKost_Ceiling_R3", (-48.0, -30.0, 2.50), (3.84, 4.80, 0.03), "wood_weathered", "PoorKost")
+    add_box("PoorKost_Ceiling_R1", (-44.0, -30.0, 2.50), (3.84, 4.80, 0.03), "wood_weathered", "PoorKostRoom")
+    add_box("PoorKost_Ceiling_R2", (-41.0, -30.0, 2.50), (1.84, 4.80, 0.03), "wood_weathered", "PoorKost")
+
+    # Bamboo posts & Eave Beam supporting front roof overhang
+    for px in [-49.8, -46.0, -42.0, -38.2]:
+        add_cylinder(f"PoorKost_Front_Post_{px}-col", (px, -26.50, 1.25), 0.06, 2.50, "wood_bamboo", "PoorKost", vertices=6)
+    add_box("PoorKost_Front_Eave_Beam", (-44.0, -26.50, 2.47), (12.0, 0.08, 0.08), "wood_weathered", "PoorKost")
+
+    # ── SOLID FRONT WALL PANELS & DOORWAYS (FLUSH TO ROOF Z = 2.61 - ZERO HOLES!) ──
+    # Room 3 Front Wall (X: -50.0 to -46.0, Door opening: X: -48.20 to -47.30)
+    add_box("PoorKost_R3_FrontWall_L-col", (-49.10, -27.50, 1.30), (1.80, 0.16, 2.60), "wall_worn_concrete", "PoorKost")
+    add_box("PoorKost_R3_FrontWall_R-col", (-46.65, -27.50, 1.30), (1.30, 0.16, 2.60), "wall_worn_concrete", "PoorKost")
+    add_box("PoorKost_R3_Lintel-col", (-47.75, -27.50, 2.355), (0.90, 0.16, 0.49), "wall_worn_concrete", "PoorKost")
+    add_box("PoorKost_R3_Door_Frame_L", (-48.20, -27.50, 1.05), (0.06, 0.18, 2.10), "wood_weathered", "PoorKost")
+    add_box("PoorKost_R3_Door_Frame_R", (-47.30, -27.50, 1.05), (0.06, 0.18, 2.10), "wood_weathered", "PoorKost")
+    add_box("PoorKost_R3_Door_Frame_Top", (-47.75, -27.50, 2.12), (0.96, 0.18, 0.06), "wood_weathered", "PoorKost")
+    add_box("PoorKost_R3_Door", (-47.75, -27.46, 1.05), (0.84, 0.04, 2.06), "wood_weathered", "PoorKost")
+    add_box("PoorKost_R3_Door_Knob", (-47.38, -27.42, 1.05), (0.04, 0.04, 0.04), "kost_railing_metal", "PoorKost")
+
+    # Room 1 Front Wall (STARTER ROOM: X: -46.0 to -42.0, Door opening: X: -43.75 to -42.85)
+    add_box("PoorKost_R1_FrontWall_L-col", (-44.875, -27.50, 1.30), (2.25, 0.16, 2.60), "wall_worn_concrete", "PoorKost")
+    add_box("PoorKost_R1_FrontWall_R-col", (-42.425, -27.50, 1.30), (0.85, 0.16, 2.60), "wall_worn_concrete", "PoorKost")
+    add_box("PoorKost_R1_Lintel-col", (-43.30, -27.50, 2.355), (0.90, 0.16, 0.49), "wall_worn_concrete", "PoorKost")
+    add_box("PoorKost_Door_Frame_L", (-43.75, -27.50, 1.05), (0.06, 0.18, 2.10), "wood_weathered", "PoorKostRoom")
+    add_box("PoorKost_Door_Frame_R", (-42.85, -27.50, 1.05), (0.06, 0.18, 2.10), "wood_weathered", "PoorKostRoom")
+    add_box("PoorKost_Door_Frame_Top", (-43.30, -27.50, 2.12), (0.96, 0.18, 0.06), "wood_weathered", "PoorKostRoom")
+    add_doormat("PoorKost_Doormat", (-43.30, -27.05, 0.08), "wood_weathered", "PoorKostRoom")
+    add_box("PoorKost_Sandal_L", (-43.45, -27.05, 0.10), (0.08, 0.22, 0.02), "plant_green_lime", "PoorKostRoom")
+    add_box("PoorKost_Sandal_R", (-43.32, -27.05, 0.10), (0.08, 0.22, 0.02), "curb_white", "PoorKostRoom")
+
+    # Room 1 Window with wooden teralis slats (in left front wall)
+    add_box("PoorKost_R1_Win_Frame_Top", (-45.2, -27.50, 1.85), (0.85, 0.18, 0.05), "wood_weathered", "PoorKost")
+    add_box("PoorKost_R1_Win_Frame_Bot", (-45.2, -27.50, 1.05), (0.85, 0.18, 0.05), "wood_weathered", "PoorKost")
+    add_box("PoorKost_R1_Win_Glass", (-45.2, -27.50, 1.45), (0.75, 0.02, 0.75), "glass_frosted", "PoorKost")
+    for bz in [1.25, 1.45, 1.65]:
+        add_box(f"PoorKost_R1_Win_Bar_{bz}", (-45.2, -27.48, bz), (0.75, 0.03, 0.03), "wood_weathered", "PoorKost")
+
+    # STARTER ROOM INTERIOR FURNISHINGS (Distinctly named PoorKost_*)
+    add_box("PoorKost_Kasur_Visual", (-45.0, -30.8, 0.06), (1.0, 1.8, 0.12), "mattress_foam_worn", "PoorKostRoom")
+    add_box("PoorKost_Bantal", (-45.0, -31.4, 0.14), (0.55, 0.35, 0.10), "pillow_white", "PoorKostRoom")
+    add_box("PoorKost_Selimut", (-45.0, -30.3, 0.13), (0.85, 0.70, 0.05), "clothes_red", "PoorKostRoom")
+
+    add_box("PoorKost_Tikar", (-43.8, -30.0, 0.02), (1.6, 1.6, 0.01), "tikar_mat", "PoorKostRoom")
+    add_box("PoorKost_Meja_Top-col", (-43.6, -31.0, 0.28), (0.85, 0.50, 0.03), "wood_light", "PoorKostRoom")
+    for lx in [-43.95, -43.25]:
+        for ly in [-31.20, -30.80]:
+            add_box(f"PoorKost_Meja_Leg_{lx:.2f}_{ly:.2f}-col", (lx, ly, 0.14), (0.04, 0.04, 0.26), "kost_dark_grey", "PoorKostRoom")
+
+    add_box("PoorKost_Laptop_Base", (-43.6, -31.0, 0.305), (0.32, 0.24, 0.015), "laptop_dark", "PoorKostRoom")
+    add_box("PoorKost_Laptop_Lid", (-43.6, -31.12, 0.42), (0.32, 0.015, 0.22), "laptop_dark", "PoorKostRoom", rot=(math.radians(-15), 0, 0))
+    add_box("PoorKost_Laptop_Screen", (-43.6, -31.11, 0.42), (0.29, 0.01, 0.19), "laptop_screen", "PoorKostRoom", rot=(math.radians(-15), 0, 0))
+
+    add_box("PoorKost_Kipas_Base", (-45.2, -29.6, 0.06), (0.28, 0.24, 0.04), "pvc_blue", "PoorKostRoom")
+    add_box("PoorKost_Kipas_Cage", (-45.2, -29.6, 0.24), (0.26, 0.12, 0.28), "curb_white", "PoorKostRoom")
+    add_cylinder("PoorKost_Kipas_Blade", (-45.2, -29.6, 0.24), 0.10, 0.02, "pvc_blue", "PoorKostRoom", rot=(math.radians(90), 0, 0), vertices=6)
+
+    add_box("PoorKost_Colokan_Strip", (-43.1, -31.4, 0.03), (0.10, 0.24, 0.04), "curb_white", "PoorKostRoom")
+    add_cylinder("PoorKost_Kabel_Kipas", (-44.15, -30.5, 0.015), 0.008, 1.8, "kost_dark_grey", "PoorKostRoom", rot=(0, math.radians(90), 0))
+
+    add_box("PoorKost_Token_Meter_Box", (-42.08, -28.2, 1.55), (0.05, 0.22, 0.32), "paint_bucket", "PoorKostRoom")
+    add_box("PoorKost_Token_Meter_Screen", (-42.05, -28.2, 1.63), (0.015, 0.12, 0.06), "plant_green", "PoorKostRoom")
+    add_box("PoorKost_Token_Meter_Keypad", (-42.05, -28.2, 1.50), (0.015, 0.14, 0.10), "kost_dark_grey", "PoorKostRoom")
+
+    add_angled_bar("PoorKost_Kabel_Lampu", (-43.8, -30.0, 2.50), (-43.8, -30.0, 1.95), 0.015, 0.015, "kost_dark_grey", "PoorKostRoom")
+    add_cylinder("PoorKost_Fitting_Lampu", (-43.8, -30.0, 1.95), 0.04, 0.06, "kost_dark_grey", "PoorKostRoom")
+    add_icosphere("PoorKost_Bulb_Lampu", (-43.8, -30.0, 1.88), 0.06, "lamp_bulb", "PoorKostRoom", subdivisions=1)
+
+    # Room 2 Front Wall (X: -42.0 to -40.0, Door opening: X: -41.70 to -40.80)
+    add_box("PoorKost_R2_FrontWall_L-col", (-41.85, -27.50, 1.30), (0.30, 0.16, 2.60), "wall_worn_concrete", "PoorKost")
+    add_box("PoorKost_R2_FrontWall_R-col", (-40.40, -27.50, 1.30), (0.80, 0.16, 2.60), "wall_worn_concrete", "PoorKost")
+    add_box("PoorKost_R2_Lintel-col", (-41.25, -27.50, 2.355), (0.90, 0.16, 0.49), "wall_worn_concrete", "PoorKost")
+    add_box("PoorKost_R2_Door_Frame_L", (-41.70, -27.50, 1.05), (0.06, 0.18, 2.10), "wood_weathered", "PoorKost")
+    add_box("PoorKost_R2_Door_Frame_R", (-40.80, -27.50, 1.05), (0.06, 0.18, 2.10), "wood_weathered", "PoorKost")
+    add_box("PoorKost_R2_Door_Frame_Top", (-41.25, -27.50, 2.12), (0.96, 0.18, 0.06), "wood_weathered", "PoorKost")
+    add_box("PoorKost_R2_Door", (-41.25, -27.46, 1.05), (0.84, 0.04, 2.06), "wood_weathered", "PoorKost")
+    add_box("PoorKost_R2_Door_Knob", (-40.88, -27.42, 1.05), (0.04, 0.04, 0.04), "kost_railing_metal", "PoorKost")
+
+    # Communal WC Front Wall (X: -40.0 to -38.0, Door opening: X: -39.50 to -38.60)
+    add_box("PoorKost_WC_FrontWall_L-col", (-39.75, -27.50, 1.30), (0.50, 0.16, 2.60), "tin_roof_rusty", "PoorKost")
+    add_box("PoorKost_WC_FrontWall_R-col", (-38.30, -27.50, 1.30), (0.60, 0.16, 2.60), "tin_roof_rusty", "PoorKost")
+    add_box("PoorKost_WC_Lintel-col", (-39.05, -27.50, 2.325), (0.90, 0.16, 0.55), "tin_roof_rusty", "PoorKost")
+    add_box("PoorKost_WC_Frame_L", (-39.50, -27.50, 1.025), (0.06, 0.18, 2.05), "wood_weathered", "PoorKost")
+    add_box("PoorKost_WC_Frame_R", (-38.60, -27.50, 1.025), (0.06, 0.18, 2.05), "wood_weathered", "PoorKost")
+    add_box("PoorKost_WC_Frame_Top", (-39.05, -27.50, 2.075), (0.96, 0.18, 0.05), "wood_weathered", "PoorKost")
+    # (Interactive blue PVC WC Door instantiated in Godot level scene so it can be opened/closed!)
+    add_cylinder("PoorKost_WC_Ember_Cat", (-39.2, -29.5, 0.25), 0.22, 0.45, "paint_bucket", "PoorKost", vertices=10)
+    add_cylinder("PoorKost_WC_Gayung", (-39.2, -29.5, 0.52), 0.08, 0.10, "clothes_red", "PoorKost", vertices=8)
+    add_box("PoorKost_WC_Kloset-col", (-38.8, -30.5, 0.08), (0.60, 0.75, 0.14), "wall_worn_concrete", "PoorKost")
+
+    # ── COURTYARD CLOTHESLINES & CLUTTER (MATCHING REFERENCE PHOTO) ──
+    for tpx in [-48.5, -41.5]:
+        add_cylinder(f"Jemuran_Post_{tpx}-col", (tpx, -25.2, 1.0), 0.04, 2.0, "wood_bamboo", "PoorKost", vertices=6)
+        add_box(f"Jemuran_Arm_{tpx}", (tpx, -25.2, 1.98), (0.06, 1.20, 0.06), "wood_bamboo", "PoorKost")
+
+    add_angled_bar("Jemuran_Wire_1", (-48.5, -25.6, 1.95), (-41.5, -25.6, 1.95), 0.01, 0.01, "clothesline_wire", "PoorKost")
+    add_angled_bar("Jemuran_Wire_2", (-48.5, -24.8, 1.95), (-41.5, -24.8, 1.95), 0.01, 0.01, "clothesline_wire", "PoorKost")
+
+    hanging_laundry = [
+        ("Laundry_Red_TShirt", (-47.6, -25.6, 1.55), (0.55, 0.03, 0.65), "clothes_red"),
+        ("Laundry_Jeans_Blue", (-46.7, -25.6, 1.45), (0.35, 0.04, 0.85), "clothes_blue"),
+        ("Laundry_Yellow_Towel", (-45.8, -25.6, 1.50), (0.60, 0.02, 0.75), "clothes_yellow"),
+        ("Laundry_White_Singlet", (-44.9, -25.6, 1.60), (0.45, 0.03, 0.55), "curb_white"),
+        ("Laundry_Batik_Sarong", (-44.0, -25.6, 1.40), (0.75, 0.03, 0.90), "brick_red"),
+        ("Laundry_Green_Shirt", (-43.0, -25.6, 1.55), (0.50, 0.03, 0.65), "plant_green"),
+        ("Laundry_Shorts_Dark", (-42.2, -25.6, 1.60), (0.40, 0.03, 0.50), "kost_dark_grey"),
+        ("Laundry_Daster_Tosca", (-46.2, -24.8, 1.45), (0.65, 0.03, 0.85), "wall_tosca"),
+        ("Laundry_Towel_White", (-44.5, -24.8, 1.52), (0.50, 0.02, 0.70), "curb_white"),
+        ("Laundry_TShirt_Blue", (-43.2, -24.8, 1.55), (0.55, 0.03, 0.65), "clothes_blue")
+    ]
+    for lname, lpos, lsize, lmat in hanging_laundry:
+        add_box(lname, lpos, lsize, lmat, "PoorKost")
+
+    # Outdoor Kitchen Table & 3kg Melon Gas Tank
+    add_box("Dapur_Darurat_Table-col", (-39.5, -26.2, 0.35), (1.4, 0.7, 0.70), "wood_weathered", "PoorKost")
+    add_cylinder("Gas_Melon_3kg", (-39.8, -26.2, 0.85), 0.14, 0.28, "lpg_gas_green", "PoorKost", vertices=10)
+    add_cylinder("Gas_Melon_Collar", (-39.8, -26.2, 1.02), 0.11, 0.06, "lpg_gas_green", "PoorKost", vertices=8)
+    add_box("Stove_1_Burner", (-39.3, -26.2, 0.74), (0.35, 0.35, 0.08), "stainless_tray", "PoorKost")
+    add_cylinder("Wok_Kuali", (-39.3, -26.2, 0.82), 0.16, 0.06, "kost_dark_grey", "PoorKost", vertices=10)
+
+    # Blue Aqua gallon jugs
+    add_cylinder("Aqua_Galon_1", (-38.5, -26.2, 0.24), 0.16, 0.45, "aqua_gallon_blue", "PoorKost", vertices=10)
+    add_cylinder("Aqua_Galon_2", (-38.5, -25.8, 0.24), 0.16, 0.45, "aqua_gallon_blue", "PoorKost", vertices=10)
+    add_cylinder("Aqua_Galon_3", (-38.5, -26.0, 0.68), 0.16, 0.45, "aqua_gallon_blue", "PoorKost", vertices=10)
+
+    add_cylinder("Baskom_Cucian", (-47.5, -26.8, 0.12), 0.28, 0.18, "pvc_blue", "PoorKost", vertices=10)
+    add_angled_bar("Sapu_Lidi_PoorKost", (-49.2, -27.4, 0.05), (-49.0, -27.45, 1.15), 0.03, 0.03, "wood_bamboo", "PoorKost")
+
+    add_box("Scrap_Tile_Stack_1-col", (-49.2, -25.2, 0.25), (1.1, 0.8, 0.45), "tile_roof_brown", "PoorKost")
+    add_cylinder("Trash_Drum_PoorKost", (-49.2, -24.2, 0.40), 0.28, 0.75, "wall_worn_concrete_dark", "PoorKost", vertices=8)
+
+    # Old parked moped
+    add_box("Motor_Jadul_Body-col", (-48.5, -26.8, 0.55), (0.35, 1.40, 0.50), "motor_body_black", "PoorKost")
+    add_box("Motor_Jadul_Seat", (-48.5, -26.8, 0.82), (0.28, 0.75, 0.08), "kost_dark_grey", "PoorKost")
+    add_cylinder("Motor_Jadul_Wheel_F", (-48.5, -26.2, 0.28), 0.26, 0.08, "motor_tire", "PoorKost", rot=(0, math.radians(90), 0), vertices=10)
+    add_cylinder("Motor_Jadul_Wheel_R", (-48.5, -27.4, 0.28), 0.26, 0.08, "motor_tire", "PoorKost", rot=(0, math.radians(90), 0), vertices=10)
+
+    # ── GROUNDED ENTRANCE SIGNBOARD (PAMFLET BERTENAGA TIANG - NO LONGER FLOATING!) ──
+    add_cylinder("PoorKost_Sign_Post_L-col", (-37.8, -24.0, 0.95), 0.05, 1.90, "wood_weathered", "PoorKost", vertices=6)
+    add_cylinder("PoorKost_Sign_Post_R-col", (-37.8, -25.5, 0.95), 0.05, 1.90, "wood_weathered", "PoorKost", vertices=6)
+    add_box("PoorKost_Sign_Crossbar_Top", (-37.8, -24.75, 1.82), (0.05, 1.55, 0.04), "wood_weathered", "PoorKost")
+    add_box("PoorKost_Sign_Crossbar_Bot", (-37.8, -24.75, 1.42), (0.05, 1.55, 0.04), "wood_weathered", "PoorKost")
+    add_box("PoorKost_Sign_Board", (-37.8, -24.75, 1.62), (0.04, 1.45, 0.38), "curb_white", "PoorKost")
+    create_3d_text("PoorKost_Sign_Text", "KOS BAROKAH (MURAH)", (-37.76, -24.75, 1.65), (math.radians(90), 0, math.radians(90)), size=0.11, extrude=0.015, mat_name="dish_telur_balado", col_name="PoorKost")
+    create_3d_text("PoorKost_Sign_Sub", "Terima Kos Putra / Putri - Hub: Pak Barokah", (-37.76, -24.75, 1.52), (math.radians(90), 0, math.radians(90)), size=0.055, extrude=0.01, mat_name="kost_dark_grey", col_name="PoorKost")
+
+    # ─── 18. 10 NEW DISTINCT INDONESIAN GANG HOUSES (HOUSES 7 TO 16) ───
+    # House 7 (East of Gang Selatan: Sage Green)
+    add_box("House7_Body-col", (-26.5, -8.0, 1.6), (6.2, 5.5, 3.2), "wall_sage_green", "GangHouses")
+    add_box("House7_Roof-col", (-26.5, -8.0, 3.5), (6.5, 5.8, 0.7), "tile_roof_brown", "GangHouses")
+    add_box("House7_Porch-col", (-28.8, -8.0, 0.05), (1.8, 3.5, 0.10), "curb_concrete", "GangHouses")
+    add_house_entrance("House7", (-29.6, -7.5, 0.0), [(-29.6, -9.0, 1.4, 1.2, 1.0)], face_axis='X', sign=1)
+    add_bush_clump("House7_Bougainvillea", (-29.2, -6.5, 0.15), 0.35, "GangHouses", flower_mat="flower_magenta")
+
+    # House 8 (East of Gang Selatan: Sky Blue with Depot Air)
+    add_box("House8_Body-col", (-26.5, -15.5, 1.6), (6.2, 5.5, 3.2), "wall_sky_blue", "GangHouses")
+    add_box("House8_Roof-col", (-26.5, -15.5, 3.4), (6.5, 5.8, 0.6), "roof_zinc_blue", "GangHouses")
+    add_box("House8_Awning", (-29.2, -15.5, 2.3), (1.4, 3.2, 0.05), "roof_zinc_blue", "GangHouses")
+    add_house_entrance("House8", (-29.6, -15.0, 0.0), [(-29.6, -16.5, 1.4, 1.2, 1.0)], face_axis='X', sign=1)
+    for j in range(3):
+        add_cylinder(f"House8_Jugs_{j}", (-29.2, -14.0 - j*0.4, 0.22), 0.14, 0.44, "aqua_gallon_blue", "GangHouses", vertices=8)
+
+    # House 9 (West of Gang Selatan: Warm Mustard Yellow)
+    add_box("House9_Body-col", (-37.5, -8.0, 1.6), (6.2, 5.5, 3.2), "wall_yellow", "GangHouses")
+    add_box("House9_Roof-col", (-37.5, -8.0, 3.5), (6.5, 5.8, 0.7), "tile_roof_brown", "GangHouses")
+    add_house_entrance("House9", (-34.4, -7.5, 0.0), [(-34.4, -9.0, 1.4, 1.2, 1.0)], face_axis='X', sign=-1)
+    add_box("House9_Low_Fence-col", (-34.0, -8.0, 0.35), (0.15, 5.5, 0.70), "brick_red", "GangHouses")
+
+    # House 10 (West of Gang Selatan: Soft Peach Coral)
+    add_box("House10_Body-col", (-37.5, -15.5, 1.6), (6.2, 5.5, 3.2), "wall_soft_pink", "GangHouses")
+    add_box("House10_Roof-col", (-37.5, -15.5, 3.5), (6.5, 5.8, 0.7), "tile_roof_brown", "GangHouses")
+    add_house_entrance("House10", (-34.4, -15.0, 0.0), [(-34.4, -16.5, 1.4, 1.2, 1.0)], face_axis='X', sign=-1)
+    add_box("House10_Terrace_Bench", (-34.8, -13.8, 0.35), (0.40, 1.1, 0.45), "wood_door", "GangHouses")
+
+    # House 11 (North of Gang Barat: Minimalist White)
+    add_box("House11_Body-col", (-37.0, 6.5, 1.6), (6.5, 6.0, 3.2), "kost_wall_white", "GangHouses")
+    add_box("House11_Parapet-col", (-37.0, 6.5, 1.6), (6.6, 6.1, 3.4), "kost_concrete_grey", "GangHouses")
+    add_house_entrance("House11", (-36.5, 3.48, 0.0), [(-38.5, 3.48, 1.4, 1.4, 1.1)], face_axis='Y', sign=-1)
+    add_box("House11_Gate-col", (-36.5, 2.2, 0.5), (2.0, 0.08, 1.0), "iron_fence_black", "GangHouses")
+
+    # House 12 (North of Gang Barat: Mint Tosca)
+    add_box("House12_Body-col", (-45.5, 6.5, 1.6), (6.5, 6.0, 3.2), "wall_tosca", "GangHouses")
+    add_box("House12_Roof-col", (-45.5, 6.5, 3.5), (6.8, 6.3, 0.7), "tile_roof_brown", "GangHouses")
+    add_box("House12_Canopy", (-45.5, 3.0, 2.3), (3.2, 2.2, 0.06), "tin_roof", "GangHouses")
+    add_house_entrance("House12", (-45.0, 3.48, 0.0), [(-47.0, 3.48, 1.4, 1.4, 1.1)], face_axis='Y', sign=-1)
+
+    # House 13 (North of Gang Barat: Soft Lavender Lilac)
+    add_box("House13_Body-col", (-54.0, 6.5, 1.6), (6.5, 6.0, 3.2), "wall_lavender", "GangHouses")
+    add_box("House13_Roof-col", (-54.0, 6.5, 3.5), (6.8, 6.3, 0.7), "tile_roof_brown", "GangHouses")
+    add_house_entrance("House13", (-53.5, 3.48, 0.0), [(-55.5, 3.48, 1.4, 1.4, 1.1)], face_axis='Y', sign=-1)
+    add_box("House13_Picket_Fence", (-54.0, 2.25, 0.40), (5.5, 0.08, 0.80), "fence_white_wood", "GangHouses")
+
+    # House 14 (South of Gang Barat: Traditional Red Brick)
+    add_box("House14_Body-col", (-37.0, -6.5, 1.6), (6.5, 6.0, 3.2), "brick_red", "GangHouses")
+    add_box("House14_Roof-col", (-37.0, -6.5, 3.5), (6.8, 6.3, 0.7), "tile_roof_brown", "GangHouses")
+    add_house_entrance("House14", (-36.5, -3.48, 0.0), [(-38.5, -3.48, 1.4, 1.4, 1.1)], face_axis='Y', sign=1)
+    add_box("House14_Stone_Wall-col", (-37.0, -2.25, 0.40), (5.5, 0.18, 0.80), "fence_stone_base", "GangHouses")
+
+    # House 15 (South of Gang Barat: Cream with Warkop Mbak Sri)
+    add_box("House15_Body-col", (-45.5, -6.5, 1.6), (6.5, 6.0, 3.2), "wall_cream", "GangHouses")
+    add_box("House15_Roof-col", (-45.5, -6.5, 3.4), (6.8, 6.3, 0.5), "tin_roof", "GangHouses")
+    add_box("Warkop_Awning", (-45.5, -3.0, 2.3), (4.5, 2.0, 0.06), "warsun_yellow", "GangHouses")
+    add_box("Warkop_Counter-col", (-45.5, -3.0, 0.50), (3.0, 0.5, 0.90), "wood_weathered", "GangHouses")
+    add_box("Warkop_Bench-col", (-45.5, -2.4, 0.25), (2.8, 0.35, 0.45), "wood_light", "GangHouses")
+    add_box("Warkop_Etalase_Gorengan", (-44.6, -3.0, 1.15), (0.75, 0.40, 0.40), "glass_showcase_transparent", "GangHouses")
+    add_house_entrance("House15", (-47.5, -3.48, 0.0), [], face_axis='Y', sign=1)
+    add_box("Warkop_Sign", (-45.5, -2.1, 2.45), (2.8, 0.04, 0.35), "curb_white", "GangHouses")
+    create_3d_text("Warkop_Text", "WARKOP & GORENGAN MBAK SRI", (-45.5, -2.12, 2.45), (math.radians(90), 0, math.radians(180)), size=0.13, extrude=0.02, mat_name="dish_telur_balado", col_name="GangHouses")
+
+    # House 16 (South of Gang Barat: Forest Green)
+    add_box("House16_Body-col", (-54.0, -6.5, 1.6), (6.5, 6.0, 3.2), "wall_forest_green", "GangHouses")
+    add_box("House16_Roof-col", (-54.0, -6.5, 3.5), (6.8, 6.3, 0.7), "tile_roof_brown", "GangHouses")
+    add_house_entrance("House16", (-53.5, -3.48, 0.0), [(-55.5, -3.48, 1.4, 1.4, 1.1)], face_axis='Y', sign=1)
+    add_box("House16_Teras-col", (-54.0, -2.8, 0.05), (5.0, 1.4, 0.10), "kost_floor_paving", "GangHouses")
+
+    # ─── 19. EXTENSION TREES, PALMS, & STREET LIGHTS ───
+    ext_trees = [
+        ("Tree_NW1", (-41.0, 11.0, 0.0), 4.5, 0.20, 1.5),
+        ("Tree_NW2", (-50.0, 11.0, 0.0), 4.2, 0.18, 1.4),
+        ("Tree_SW1", (-41.0, -11.0, 0.0), 4.3, 0.19, 1.4),
+        ("Tree_SW2", (-50.0, -11.0, 0.0), 4.1, 0.18, 1.4),
+        ("Tree_GS1", (-25.0, -21.0, 0.0), 4.2, 0.19, 1.4),
+        ("Tree_PK1", (-51.0, -30.0, 0.0), 4.4, 0.20, 1.5)
+    ]
+    for tname, pos, th, tr, cr in ext_trees:
+        add_stylized_tree(tname, pos, th, tr, cr, col_name="GangEnvironment")
+
+    add_palm_tree("Palm_Pertigaan", (-35.0, 6.0, 0.0), height=5.4, col_name="GangEnvironment")
+    add_palm_tree("Palm_PoorKost", (-49.5, -22.5, 0.0), height=5.2, col_name="GangEnvironment")
+
+    ext_poles = [
+        (-32.0, 2.30, "-32_Pertigaan"),
+        (-50.0, 2.20, "-50_GangBarat"),
+        (-30.1, -18.0, "-18_GangSelatan"),
+        (-40.0, -20.1, "-40_Belokan")
+    ]
+    for px, py, tag in ext_poles:
+        add_cylinder(f"Tiang_Listrik_{tag}", (px, py, 3.5), 0.10, 7.0, "kost_concrete_grey", "GangInfrastructure", vertices=8)
+        add_box(f"Trafo_Box_{tag}", (px, py, 5.5), (0.4, 0.4, 0.6), "kost_dark_grey", "GangInfrastructure")
+        add_box(f"Lampu_Arm_{tag}", (px, py - 0.4, 5.8), (0.05, 0.8, 0.05), "kost_railing_metal", "GangInfrastructure")
+        add_cylinder(f"Lampu_Cap_{tag}", (px, py - 0.75, 5.75), 0.15, 0.08, "kost_dark_grey", "GangInfrastructure", vertices=8)
+        add_box(f"Lampu_Bulb_{tag}", (px, py - 0.75, 5.68), (0.1, 0.1, 0.1), "lamp_bulb", "GangInfrastructure")
+
+    add_angled_bar("Kabel_P1", (-12.0, 2.1, 6.6), (-32.0, 2.30, 6.6), 0.02, 0.02, "kost_dark_grey", "GangInfrastructure")
+    add_angled_bar("Kabel_P2", (-32.0, 2.30, 6.6), (-50.0, 2.20, 6.6), 0.02, 0.02, "kost_dark_grey", "GangInfrastructure")
+    add_angled_bar("Kabel_P3", (-32.0, 2.30, 6.4), (-30.1, -18.0, 6.4), 0.02, 0.02, "kost_dark_grey", "GangInfrastructure")
+    add_angled_bar("Kabel_P4", (-30.1, -18.0, 6.4), (-40.0, -20.1, 6.4), 0.02, 0.02, "kost_dark_grey", "GangInfrastructure")
+
+    # ─── 20. SAVE AND EXPORT GLB ───
     blend_path = "/home/haelahpx/Documents/GitHub/gameproject01/game/new-game-project/assets/models/kampung_kos_scene.blend"
     blend_path2 = "/home/haelahpx/Documents/GitHub/gameproject01/game/new-game-project/assets/models/kampung_kos_gang.blend"
     glb_path = "/home/haelahpx/Documents/GitHub/gameproject01/game/new-game-project/assets/models/kampung_kos_gang.glb"

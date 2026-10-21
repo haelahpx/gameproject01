@@ -63,6 +63,24 @@ roughness = 0.4
 material = SubResource("StandardMaterial3D_door_pvc")
 size = Vector3(1.10, 2.10, 0.04)
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_poorkost_door"]
+size = Vector3(0.88, 2.08, 0.08)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_poorkost_door_wood"]
+albedo_color = Color(0.38, 0.30, 0.22, 1)
+roughness = 0.88
+
+[sub_resource type="BoxMesh" id="BoxMesh_poorkost_door"]
+material = SubResource("StandardMaterial3D_poorkost_door_wood")
+size = Vector3(0.88, 2.08, 0.04)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_poorkost_wc_door"]
+size = Vector3(0.88, 2.00, 0.08)
+
+[sub_resource type="BoxMesh" id="BoxMesh_poorkost_wc_door"]
+material = SubResource("StandardMaterial3D_door_pvc")
+size = Vector3(0.88, 2.00, 0.04)
+
 [sub_resource type="BoxShape3D" id="BoxShape3D_switch"]
 size = Vector3(0.18, 0.28, 0.18)
 
@@ -171,6 +189,48 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, 3.0, -5.5)
 light_color = Color(1, 0.92, 0.8, 1)
 light_energy = 2.0
 omni_range = 10.0
+
+[node name="StreetLight_Pertigaan" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -32.0, 5.5, -2.3)
+light_color = Color(1, 0.9, 0.7, 1)
+light_energy = 2.2
+omni_range = 16.0
+
+[node name="StreetLight_GangBarat" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -50.0, 5.5, -2.2)
+light_color = Color(1, 0.9, 0.7, 1)
+light_energy = 2.2
+omni_range = 16.0
+
+[node name="StreetLight_GangSelatan" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30.1, 5.5, 18.0)
+light_color = Color(1, 0.9, 0.7, 1)
+light_energy = 2.2
+omni_range = 16.0
+
+[node name="StreetLight_Belokan" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40.0, 5.5, 20.1)
+light_color = Color(1, 0.9, 0.7, 1)
+light_energy = 2.2
+omni_range = 16.0
+
+[node name="PosRondaLight" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -32.0, 2.3, -4.0)
+light_color = Color(1, 0.85, 0.65, 1)
+light_energy = 1.6
+omni_range = 8.0
+
+[node name="PoorKost_YardLight" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -44.0, 2.4, 26.8)
+light_color = Color(1, 0.92, 0.75, 1)
+light_energy = 1.8
+omni_range = 12.0
+
+[node name="PoorKost_RoomLight" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -43.8, 2.0, 30.0)
+light_color = Color(1, 0.94, 0.82, 1)
+light_energy = 1.5
+omni_range = 6.5
 
 [node name="ModelGeometry" parent="." instance=ExtResource("1_model")]
 
@@ -508,6 +568,136 @@ gate_name = "Rumah 06"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="SlidingGate_House6"]
 shape = SubResource("BoxShape3D_sliding_gate")
+
+[node name="Interact_PosRonda" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -32.0, 0.8, -4.0)
+script = ExtResource("4_prop")
+inspection_text = "Pos Kamling Siskamling RT 04 / RW 02. Ada kentongan kayu jati untuk tanda bahaya dan ronda malam warga kampung."
+prompt_message = "Periksa Pos Ronda & Kentongan"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_PosRonda"]
+shape = SubResource("BoxShape3D_bak")
+
+[node name="Interact_TambalBan" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -29.2, 0.8, 21.5)
+script = ExtResource("4_prop")
+inspection_text = "Kios Tambal Ban & Kompresor Angin Pak Kumis. Sedia tambal tubeless, isi angin motor, dan ganti ban luar dalam."
+prompt_message = "Periksa Kios Tambal Ban"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_TambalBan"]
+shape = SubResource("BoxShape3D_table")
+
+[node name="Interact_WarkopMbakSri" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.5, 0.8, 2.5)
+script = ExtResource("4_prop")
+inspection_text = "Warkop & Gorengan Mbak Sri. Aroma kopi seduh hangat dan etalase aneka gorengan renyah: bakwan, tahu isi, tempe mendoan."
+prompt_message = "Periksa Warkop & Gorengan"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_WarkopMbakSri"]
+shape = SubResource("BoxShape3D_table")
+
+[node name="Interact_PoorKost_Kasur" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.0, 0.2, 30.8)
+script = ExtResource("6_bed")
+sleep_prompt = "Tidur di Kasur Busa"
+wake_prompt = "Bangun"
+fade_duration = 0.8
+sleep_duration = 1.5
+prompt_message = "Tidur di Kasur Busa"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_PoorKost_Kasur"]
+shape = SubResource("BoxShape3D_bed")
+
+[node name="Interact_PoorKost_Laptop" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -43.6, 0.45, 31.0)
+script = ExtResource("4_prop")
+inspection_text = "Laptop tua di atas meja kayu seadanya. Senjata utama berjuang mencari rezeki dan kerjaan remote!"
+prompt_message = "Periksa Laptop Starter"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_PoorKost_Laptop"]
+shape = SubResource("BoxShape3D_small_prop")
+
+[node name="Interact_PoorKost_Token" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -42.08, 1.55, 28.2)
+script = ExtResource("4_prop")
+inspection_text = "Meteran Listrik PLN Kos Petakan. Sisa kuota token tinggal 4.2 kWh, harus hemat-hemat listrik!"
+prompt_message = "Periksa Token Listrik"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_PoorKost_Token"]
+shape = SubResource("BoxShape3D_token")
+
+[node name="DoorHingePoorKost_R1" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -43.75, 0, 27.50)
+
+[node name="PoorKost_R1_Door" type="StaticBody3D" parent="DoorHingePoorKost_R1" node_paths=PackedStringArray("door_pivot")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+script = ExtResource("3_door")
+open_rotation_y = -90.0
+close_rotation_y = 0.0
+door_pivot = NodePath("..")
+open_prompt = "Buka Pintu"
+close_prompt = "Tutup Pintu"
+door_name = "Kamar 01"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DoorHingePoorKost_R1/PoorKost_R1_Door"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.44, 1.04, 0)
+shape = SubResource("BoxShape3D_poorkost_door")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="DoorHingePoorKost_R1/PoorKost_R1_Door"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.44, 1.04, 0)
+mesh = SubResource("BoxMesh_poorkost_door")
+
+[node name="MeshHandle" type="MeshInstance3D" parent="DoorHingePoorKost_R1/PoorKost_R1_Door"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.78, 1.00, -0.04)
+mesh = SubResource("BoxMesh_door_handle")
+
+[node name="DoorHingePoorKost_WC" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -39.50, 0, 27.50)
+
+[node name="PoorKost_WC_Door" type="StaticBody3D" parent="DoorHingePoorKost_WC" node_paths=PackedStringArray("door_pivot")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+script = ExtResource("3_door")
+open_rotation_y = -90.0
+close_rotation_y = 0.0
+door_pivot = NodePath("..")
+open_prompt = "Buka Pintu WC"
+close_prompt = "Tutup Pintu WC"
+door_name = "Kamar Mandi"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DoorHingePoorKost_WC/PoorKost_WC_Door"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.44, 1.00, 0)
+shape = SubResource("BoxShape3D_poorkost_wc_door")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="DoorHingePoorKost_WC/PoorKost_WC_Door"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.44, 1.00, 0)
+mesh = SubResource("BoxMesh_poorkost_wc_door")
+
+[node name="Interact_PoorKost_Door02" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -41.25, 1.05, 27.46)
+script = ExtResource("4_prop")
+inspection_text = "Pintu terkunci! Kamar 02 disewa oleh mas-mas kurir paket yang sedang bekerja shift pagi."
+prompt_message = "Buka Pintu Kamar 02"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_PoorKost_Door02"]
+shape = SubResource("BoxShape3D_locked_door")
+
+[node name="Interact_PoorKost_Door03" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -47.75, 1.05, 27.46)
+script = ExtResource("4_prop")
+inspection_text = "Pintu terkunci! Kamar 03 disewa oleh mbak karyawati pabrik tekstil."
+prompt_message = "Buka Pintu Kamar 03"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_PoorKost_Door03"]
+shape = SubResource("BoxShape3D_locked_door")
+
+[node name="Interact_PoorKost_Sign" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -37.8, 1.62, 24.75)
+script = ExtResource("4_prop")
+inspection_text = "Plang Kayu: 'KOS BAROKAH (MURAH) - Terima Kos Putra / Putri - Hub: Pak Barokah'. Kos petakan seng murah meriah seadanya di ujung gang senggol."
+prompt_message = "Baca Plang Kos Barokah"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_PoorKost_Sign"]
+shape = SubResource("BoxShape3D_signboard")
 
 [node name="Player" parent="." instance=ExtResource("2_player")]
 transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -5.5, 0.2, -3.8)
