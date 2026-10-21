@@ -37,6 +37,9 @@ func is_sprinting() -> bool:
 func is_interact_just_pressed() -> bool:
 	return Input.is_action_just_pressed("interact")
 
+func is_interact_f_just_pressed() -> bool:
+	return Input.is_action_just_pressed("interact_f")
+
 func is_jump_just_pressed() -> bool:
 	return Input.is_action_just_pressed("jump")
 
