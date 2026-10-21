@@ -47,7 +47,7 @@ material = SubResource("StandardMaterial3D_knob_metal")
 size = Vector3(0.08, 0.04, 0.14)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_wc_door"]
-size = Vector3(0.80, 2.10, 0.08)
+size = Vector3(1.10, 2.10, 0.08)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_door_pvc"]
 albedo_color = Color(0.32, 0.50, 0.65, 1)
@@ -55,7 +55,7 @@ roughness = 0.4
 
 [sub_resource type="BoxMesh" id="BoxMesh_wc_door"]
 material = SubResource("StandardMaterial3D_door_pvc")
-size = Vector3(0.80, 2.10, 0.04)
+size = Vector3(1.10, 2.10, 0.04)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_switch"]
 size = Vector3(0.18, 0.28, 0.18)
@@ -209,12 +209,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.04, 1.0, -0.88)
 mesh = SubResource("BoxMesh_door_handle")
 
 [node name="DoorHingeWC" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.45, 0, -14.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.69, 0, -14.5)
 
 [node name="WCDoor" type="StaticBody3D" parent="DoorHingeWC" node_paths=PackedStringArray("door_pivot")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
 script = ExtResource("3_door")
-open_rotation_y = -90.0
+open_rotation_y = 90.0
 close_rotation_y = 0.0
 door_pivot = NodePath("..")
 open_prompt = "Buka Pintu"
@@ -222,11 +222,11 @@ close_prompt = "Tutup Pintu"
 door_name = "Kamar Mandi / WC"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="DoorHingeWC/WCDoor"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.40, 1.05, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.55, 1.05, 0)
 shape = SubResource("BoxShape3D_wc_door")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="DoorHingeWC/WCDoor"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.40, 1.05, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.55, 1.05, 0)
 mesh = SubResource("BoxMesh_wc_door")
 
 [node name="SaklarLampuKamar" type="StaticBody3D" parent="." node_paths=PackedStringArray("toggleable_light")]
