@@ -1,0 +1,479 @@
+[gd_scene format=3 uid="uid://kampung_kos_level_final"]
+
+[ext_resource type="PackedScene" path="res://assets/models/kampung_kos_gang_model.tscn" id="1_model"]
+[ext_resource type="PackedScene" uid="uid://d1w5ccem33kle" path="res://scenes/player/player.tscn" id="2_player"]
+[ext_resource type="Script" path="res://scripts/core/interactive_door.gd" id="3_door"]
+[ext_resource type="Script" path="res://scripts/core/interactive_prop.gd" id="4_prop"]
+[ext_resource type="Script" path="res://scripts/core/scene_teleport_trigger.gd" id="5_teleport"]
+[ext_resource type="Script" path="res://scripts/core/interactive_bed.gd" id="6_bed"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_level"]
+sky_top_color = Color(0.32, 0.54, 0.82, 1)
+sky_horizon_color = Color(0.72, 0.78, 0.85, 1)
+ground_bottom_color = Color(0.18, 0.20, 0.22, 1)
+ground_horizon_color = Color(0.62, 0.65, 0.70, 1)
+
+[sub_resource type="Sky" id="Sky_level"]
+sky_material = SubResource("ProceduralSkyMaterial_level")
+
+[sub_resource type="Environment" id="Environment_level"]
+background_mode = 2
+sky = SubResource("Sky_level")
+ambient_light_source = 3
+ambient_light_color = Color(0.65, 0.68, 0.72, 1)
+ambient_light_energy = 0.35
+tonemap_mode = 3
+tonemap_exposure = 0.95
+glow_enabled = false
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_player_door"]
+size = Vector3(0.08, 2.1, 1.0)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_door_wood"]
+albedo_color = Color(0.35, 0.18, 0.09, 1)
+roughness = 0.7
+
+[sub_resource type="BoxMesh" id="BoxMesh_player_door"]
+material = SubResource("StandardMaterial3D_door_wood")
+size = Vector3(0.05, 2.1, 0.98)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_knob_metal"]
+albedo_color = Color(0.75, 0.75, 0.78, 1)
+metallic = 0.8
+roughness = 0.3
+
+[sub_resource type="BoxMesh" id="BoxMesh_door_handle"]
+material = SubResource("StandardMaterial3D_knob_metal")
+size = Vector3(0.08, 0.04, 0.14)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wc_door"]
+size = Vector3(0.80, 2.10, 0.08)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_door_pvc"]
+albedo_color = Color(0.32, 0.50, 0.65, 1)
+roughness = 0.4
+
+[sub_resource type="BoxMesh" id="BoxMesh_wc_door"]
+material = SubResource("StandardMaterial3D_door_pvc")
+size = Vector3(0.80, 2.10, 0.04)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_switch"]
+size = Vector3(0.18, 0.28, 0.18)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_switch_plate"]
+albedo_color = Color(0.92, 0.92, 0.88, 1)
+roughness = 0.3
+
+[sub_resource type="BoxMesh" id="BoxMesh_switch_plate"]
+material = SubResource("StandardMaterial3D_switch_plate")
+size = Vector3(0.03, 0.14, 0.10)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_switch_rocker"]
+albedo_color = Color(0.80, 0.15, 0.12, 1)
+roughness = 0.4
+
+[sub_resource type="BoxMesh" id="BoxMesh_switch_rocker"]
+material = SubResource("StandardMaterial3D_switch_rocker")
+size = Vector3(0.04, 0.05, 0.04)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_token"]
+size = Vector3(0.30, 0.45, 0.35)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_small_prop"]
+size = Vector3(0.6, 0.5, 0.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_bed"]
+size = Vector3(1.3, 0.5, 2.1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_table"]
+size = Vector3(1.2, 0.6, 0.8)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_bak"]
+size = Vector3(1.0, 1.0, 1.0)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_motor"]
+size = Vector3(2.4, 1.2, 1.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_warsun_showcase"]
+size = Vector3(5.2, 1.4, 1.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_warsun_table"]
+size = Vector3(5.4, 0.9, 1.8)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_kerupuk"]
+size = Vector3(0.6, 0.6, 0.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_yard"]
+size = Vector3(2.5, 1.5, 1.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_jemuran"]
+size = Vector3(2.2, 1.2, 0.8)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_teleport"]
+size = Vector3(3.5, 3.0, 4.0)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_landing"]
+size = Vector3(1.20, 0.10, 0.80)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_stair_ramp"]
+size = Vector3(1.20, 0.10, 5.02)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_locked_door"]
+size = Vector3(0.3, 2.1, 1.0)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_signboard"]
+size = Vector3(4.0, 1.8, 0.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_kloset"]
+size = Vector3(0.8, 0.5, 1.0)
+
+[node name="KampungKosLevel" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_level")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866025, -0.353553, 0.353553, 0, 0.707107, 0.707107, -0.5, -0.612372, 0.612372, 0, 16, 0)
+shadow_enabled = true
+light_color = Color(1, 0.96, 0.90, 1)
+light_energy = 0.85
+directional_shadow_max_distance = 65.0
+
+[node name="StreetLight1" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 5.5, -2.8)
+light_color = Color(1, 0.9, 0.7, 1)
+light_energy = 2.2
+omni_range = 15.0
+
+[node name="StreetLight2" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.5, 5.5, -2.8)
+light_color = Color(1, 0.9, 0.7, 1)
+light_energy = 2.2
+omni_range = 15.0
+
+[node name="PlayerRoomLight" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.5, 2.2, -4.2)
+light_color = Color(1, 0.94, 0.82, 1)
+light_energy = 1.6
+omni_range = 7.5
+
+[node name="WCLight" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.45, 2.4, -16.5)
+light_color = Color(0.9, 0.95, 1, 1)
+light_energy = 1.5
+omni_range = 5.5
+
+[node name="WarsunLight" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, 3.0, -5.5)
+light_color = Color(1, 0.92, 0.8, 1)
+light_energy = 2.0
+omni_range = 10.0
+
+[node name="ModelGeometry" parent="." instance=ExtResource("1_model")]
+
+[node name="StairsRampCollider" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.8, -0.6, 0, 0.6, 0.8, 1.70, 1.50, -12.50)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StairsRampCollider"]
+shape = SubResource("BoxShape3D_stair_ramp")
+
+[node name="StairsLandingCollider" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.70, 2.95, -14.85)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StairsLandingCollider"]
+shape = SubResource("BoxShape3D_landing")
+
+[node name="DoorHingePlayer" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.55, 0, -3.1)
+
+[node name="PlayerDoor" type="StaticBody3D" parent="DoorHingePlayer" node_paths=PackedStringArray("door_pivot")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+script = ExtResource("3_door")
+open_rotation_y = 90.0
+close_rotation_y = 0.0
+door_pivot = NodePath("..")
+open_prompt = "Buka Pintu"
+close_prompt = "Tutup Pintu"
+door_name = "Kamar"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DoorHingePlayer/PlayerDoor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.05, -0.5)
+shape = SubResource("BoxShape3D_player_door")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="DoorHingePlayer/PlayerDoor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.05, -0.5)
+mesh = SubResource("BoxMesh_player_door")
+
+[node name="MeshHandle" type="MeshInstance3D" parent="DoorHingePlayer/PlayerDoor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.04, 1.0, -0.88)
+mesh = SubResource("BoxMesh_door_handle")
+
+[node name="DoorHingeWC" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.45, 0, -14.5)
+
+[node name="WCDoor" type="StaticBody3D" parent="DoorHingeWC" node_paths=PackedStringArray("door_pivot")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+script = ExtResource("3_door")
+open_rotation_y = -90.0
+close_rotation_y = 0.0
+door_pivot = NodePath("..")
+open_prompt = "Buka Pintu"
+close_prompt = "Tutup Pintu"
+door_name = "Kamar Mandi / WC"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DoorHingeWC/WCDoor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.40, 1.05, 0)
+shape = SubResource("BoxShape3D_wc_door")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="DoorHingeWC/WCDoor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.40, 1.05, 0)
+mesh = SubResource("BoxMesh_wc_door")
+
+[node name="SaklarLampuKamar" type="StaticBody3D" parent="." node_paths=PackedStringArray("toggleable_light")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.62, 1.35, -2.95)
+script = ExtResource("4_prop")
+inspection_text = "Saklar lampu kamar kos. Klik untuk menyalakan atau mematikan lampu."
+toggleable_light = NodePath("../PlayerRoomLight")
+alternate_prompt = "Nyalakan Lampu"
+prompt_message = "Matikan Lampu"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SaklarLampuKamar"]
+shape = SubResource("BoxShape3D_switch")
+
+[node name="MeshPlate" type="MeshInstance3D" parent="SaklarLampuKamar"]
+mesh = SubResource("BoxMesh_switch_plate")
+
+[node name="MeshRocker" type="MeshInstance3D" parent="SaklarLampuKamar"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.015, 0, 0)
+mesh = SubResource("BoxMesh_switch_rocker")
+
+[node name="Interact_Token_PLN" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.45, 1.55, -2.7)
+script = ExtResource("4_prop")
+inspection_text = "Meteran Listrik PLN Prabayar Kamar Kos. Sisa token: 18.5 kWh. Masih aman belum bunyi 'tit-tit-tit!' Tekan tombol untuk cek sisa kuota listrik."
+prompt_message = "Periksa Token Listrik PLN"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_Token_PLN"]
+shape = SubResource("BoxShape3D_token")
+
+[node name="Interact_Kasur" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.1, 0.2, -5.0)
+script = ExtResource("6_bed")
+sleep_prompt = "Tidur di Kasur"
+wake_prompt = "Bangun"
+fade_duration = 0.8
+sleep_duration = 1.5
+prompt_message = "Tidur di Kasur"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_Kasur"]
+shape = SubResource("BoxShape3D_bed")
+
+[node name="Interact_Meja" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.4, 0.35, -5.8)
+script = ExtResource("4_prop")
+inspection_text = "Meja belajar lesehan di sudut kamar. Tempat andalan nugas kuliah sampai subuh."
+prompt_message = "Periksa Meja Lesehan"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_Meja"]
+shape = SubResource("BoxShape3D_table")
+
+[node name="Interact_Laptop" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.4, 0.45, -5.8)
+script = ExtResource("4_prop")
+inspection_text = "Laptop kuliah terbuka di atas meja lesehan. Ada tugas coding yang siap dikerjakan!"
+prompt_message = "Periksa Laptop"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_Laptop"]
+shape = SubResource("BoxShape3D_small_prop")
+
+[node name="Interact_BakMandi" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.90, 0.5, -17.20)
+script = ExtResource("4_prop")
+inspection_text = "Bak mandi keramik kotak berisi air bersih dan gayung plastik biru. Airnya kelihatan jernih dan segar!"
+prompt_message = "Periksa Bak Mandi & Gayung"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_BakMandi"]
+shape = SubResource("BoxShape3D_bak")
+
+[node name="Interact_Kloset" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.95, 0.25, -16.30)
+script = ExtResource("4_prop")
+inspection_text = "Kloset jongkok keramik bersih lengkap dengan pijakan kaki anti-slip dan kran bidet semprot."
+prompt_message = "Periksa Kloset Jongkok"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_Kloset"]
+shape = SubResource("BoxShape3D_kloset")
+
+[node name="Interact_Motor" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 0.7, -6.75)
+script = ExtResource("4_prop")
+inspection_text = "Motor matic terparkir rapi sejajar garis parkir di halaman kos. Siap digunakan buat berangkat kuliah!"
+prompt_message = "Periksa Sepeda Motor"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_Motor"]
+shape = SubResource("BoxShape3D_motor")
+
+[node name="Interact_Warsun_Etalase" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, 1.2, -5.5)
+script = ExtResource("4_prop")
+inspection_text = "Etalase Warsun Bahari berkaca transparan: Terlihat jelas ayam goreng serundeng, telur balado pedas, tempe orek, sayur lodeh, mie goreng, ayam bakar, gorengan renyah, dan aneka sambal segar di dalam nampan stainless steel!"
+prompt_message = "Periksa Etalase Makanan"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_Warsun_Etalase"]
+shape = SubResource("BoxShape3D_warsun_showcase")
+
+[node name="Interact_Warsun_Meja" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, 0.7, -3.6)
+script = ExtResource("4_prop")
+inspection_text = "Meja makan panjang dan bangku kayu oranye khas warteg/warsun. Ada kaleng kerupuk blek biru, teko teh gratisan, dan wadah sendok garpu."
+prompt_message = "Periksa Meja Makan Warsun"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_Warsun_Meja"]
+shape = SubResource("BoxShape3D_warsun_table")
+
+[node name="Interact_Warsun_Kerupuk" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.5, 1.0, -3.6)
+script = ExtResource("4_prop")
+inspection_text = "Kaleng kerupuk blek biru legendaris dengan kaca bulat. Kerupuk putih kriuk gurih teman wajib makan nasi rames."
+prompt_message = "Periksa Kaleng Kerupuk"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_Warsun_Kerupuk"]
+shape = SubResource("BoxShape3D_kerupuk")
+
+[node name="Interact_House1_Yard" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 1.0, 2.4)
+script = ExtResource("4_prop")
+inspection_text = "Pekarangan rumah warga yang rapi dengan pagar besi hitam, halaman rumput hijau asri, dan pohon hias di depan rumah."
+prompt_message = "Periksa Rumah Berpagar"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_House1_Yard"]
+shape = SubResource("BoxShape3D_yard")
+
+[node name="Interact_Jemuran" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.8, 0.8, 2.5)
+script = ExtResource("4_prop")
+inspection_text = "Jemuran pakaian warna-warni di pinggir gang, ditiup angin sepoi-sepoi biar lekas kering."
+prompt_message = "Periksa Jemuran Baju"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_Jemuran"]
+shape = SubResource("BoxShape3D_jemuran")
+
+[node name="Interact_Signboard" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0, -2.2)
+script = ExtResource("4_prop")
+inspection_text = "Papan Nama Monumental: 'KOST WINDAH - PUTRA & PUTRI'. Kos-kosan nyaman, murah, dan asri di tengah gang kampung."
+prompt_message = "Baca Plang Kos Windah"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_Signboard"]
+shape = SubResource("BoxShape3D_signboard")
+
+[node name="Interact_Door_Room02" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, 1.05, -8.2)
+script = ExtResource("4_prop")
+inspection_text = "Pintu terkunci! Kamu tidak memiliki akses ke Kamar 02 (hanya penghuni kamar yang memegang kunci)."
+prompt_message = "Buka Pintu Kamar 02"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_Door_Room02"]
+shape = SubResource("BoxShape3D_locked_door")
+
+[node name="Interact_Door_Room03" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, 1.05, -12.4)
+script = ExtResource("4_prop")
+inspection_text = "Pintu terkunci! Kamu tidak memiliki akses ke Kamar 03 (hanya penghuni kamar yang memegang kunci)."
+prompt_message = "Buka Pintu Kamar 03"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_Door_Room03"]
+shape = SubResource("BoxShape3D_locked_door")
+
+[node name="Interact_Door_Room04" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, 1.05, -4.0)
+script = ExtResource("4_prop")
+inspection_text = "Pintu terkunci! Kamu tidak memiliki akses ke Kamar 04 (hanya penghuni kamar yang memegang kunci)."
+prompt_message = "Buka Pintu Kamar 04"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_Door_Room04"]
+shape = SubResource("BoxShape3D_locked_door")
+
+[node name="Interact_Door_Room05" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, 1.05, -8.2)
+script = ExtResource("4_prop")
+inspection_text = "Pintu terkunci! Kamu tidak memiliki akses ke Kamar 05 (hanya penghuni kamar yang memegang kunci)."
+prompt_message = "Buka Pintu Kamar 05"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_Door_Room05"]
+shape = SubResource("BoxShape3D_locked_door")
+
+[node name="Interact_Door_Room06" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, 1.05, -12.4)
+script = ExtResource("4_prop")
+inspection_text = "Pintu terkunci! Kamu tidak memiliki akses ke Kamar 06 (hanya penghuni kamar yang memegang kunci)."
+prompt_message = "Buka Pintu Kamar 06"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_Door_Room06"]
+shape = SubResource("BoxShape3D_locked_door")
+
+[node name="Interact_Door_Room07" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, 4.05, -4.0)
+script = ExtResource("4_prop")
+inspection_text = "Pintu terkunci! Kamu tidak memiliki akses ke Kamar 07 (hanya penghuni kamar yang memegang kunci)."
+prompt_message = "Buka Pintu Kamar 07"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_Door_Room07"]
+shape = SubResource("BoxShape3D_locked_door")
+
+[node name="Interact_Door_Room08" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, 4.05, -8.2)
+script = ExtResource("4_prop")
+inspection_text = "Pintu terkunci! Kamu tidak memiliki akses ke Kamar 08 (hanya penghuni kamar yang memegang kunci)."
+prompt_message = "Buka Pintu Kamar 08"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_Door_Room08"]
+shape = SubResource("BoxShape3D_locked_door")
+
+[node name="Interact_Door_Room09" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, 4.05, -12.4)
+script = ExtResource("4_prop")
+inspection_text = "Pintu terkunci! Kamu tidak memiliki akses ke Kamar 09 (hanya penghuni kamar yang memegang kunci)."
+prompt_message = "Buka Pintu Kamar 09"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_Door_Room09"]
+shape = SubResource("BoxShape3D_locked_door")
+
+[node name="Interact_Door_Room10" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, 4.05, -4.0)
+script = ExtResource("4_prop")
+inspection_text = "Pintu terkunci! Kamu tidak memiliki akses ke Kamar 10 (hanya penghuni kamar yang memegang kunci)."
+prompt_message = "Buka Pintu Kamar 10"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_Door_Room10"]
+shape = SubResource("BoxShape3D_locked_door")
+
+[node name="Interact_Door_Room11" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, 4.05, -8.2)
+script = ExtResource("4_prop")
+inspection_text = "Pintu terkunci! Kamu tidak memiliki akses ke Kamar 11 (hanya penghuni kamar yang memegang kunci)."
+prompt_message = "Buka Pintu Kamar 11"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_Door_Room11"]
+shape = SubResource("BoxShape3D_locked_door")
+
+[node name="Interact_Door_Room12" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, 4.05, -12.4)
+script = ExtResource("4_prop")
+inspection_text = "Pintu terkunci! Kamu tidak memiliki akses ke Kamar 12 (hanya penghuni kamar yang memegang kunci)."
+prompt_message = "Buka Pintu Kamar 12"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_Door_Room12"]
+shape = SubResource("BoxShape3D_locked_door")
+
+[node name="SceneTeleportTrigger" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 1, 0)
+script = ExtResource("5_teleport")
+target_scene_path = "res://scenes/levels/campus_area.tscn"
+fade_duration = 0.8
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SceneTeleportTrigger"]
+shape = SubResource("BoxShape3D_teleport")
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -5.5, 0.2, -3.8)
