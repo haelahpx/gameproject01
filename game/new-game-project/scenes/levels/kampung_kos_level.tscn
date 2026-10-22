@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://kampung_kos_level_final"]
 
-[ext_resource type="PackedScene" path="res://assets/models/kampung_kos_gang_model.tscn" id="1_model"]
+[ext_resource type="PackedScene" path="res://assets/models/kampung_kos_gang_model_optimized.tscn" id="1_model"]
 [ext_resource type="PackedScene" uid="uid://d1w5ccem33kle" path="res://scenes/player/player.tscn" id="2_player"]
 [ext_resource type="Script" path="res://scripts/core/interactive_door.gd" id="3_door"]
 [ext_resource type="Script" path="res://scripts/core/interactive_prop.gd" id="4_prop"]
@@ -27,7 +27,7 @@ ambient_light_color = Color(0.85, 0.88, 0.92, 1)
 ambient_light_energy = 0.85
 tonemap_mode = 2
 tonemap_exposure = 1.05
-ssao_enabled = true
+ssao_enabled = false
 ssao_radius = 1.2
 ssao_intensity = 1.5
 glow_enabled = false
@@ -187,8 +187,8 @@ shadow_enabled = true
 shadow_blur = 1.2
 light_color = Color(1, 0.98, 0.94, 1)
 light_energy = 1.0
-directional_shadow_max_distance = 150.0
-directional_shadow_blend_splits = true
+directional_shadow_max_distance = 65.0
+directional_shadow_blend_splits = false
 
 [node name="StreetLight1" type="OmniLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 5.5, -2.8)
