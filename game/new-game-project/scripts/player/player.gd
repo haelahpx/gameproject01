@@ -3,6 +3,7 @@ extends CharacterBody3D
 @export var walk_speed: float = 4.0
 @export var sprint_speed: float = 7.0
 @export var mouse_sensitivity: float = 0.002
+@export var arrow_look_speed: float = 2.4
 @export var head_bob_enabled: bool = true
 @export var head_bob_frequency: float = 2.4
 @export var head_bob_amplitude: float = 0.05
@@ -23,6 +24,8 @@ var _notice_timer: float = 0.0
 func _ready() -> void:
 	add_to_group("player")
 	InputRouter.capture_mouse(true)
+	if not InputRouter.touch_controls_active:
+		InputRouter.capture_mouse(true)
 	floor_max_angle = deg_to_rad(50.0)
 	floor_snap_length = 0.45
 	floor_constant_speed = true
@@ -38,16 +41,32 @@ func _process(delta: float) -> void:
 			_hide_notice()
 
 func _physics_process(delta: float) -> void:
-	_handle_rotation()
+	_handle_rotation(delta)
 	_handle_movement(delta)
 	_handle_interaction()
 
-func _handle_rotation() -> void:
+func _handle_rotation(delta: float) -> void:
 	var delta_mouse = InputRouter.consume_look_delta()
-	rotate_y(-delta_mouse.x * mouse_sensitivity)
+	var arrow_look = InputRouter.get_arrow_look_vector()
+	
+	# Horizontal yaw rotation (mouse delta + arrow keys):
+	# Mouse: -delta_mouse.x * mouse_sensitivity
+	# Arrow: Left (-1) rotates +Y (turn left), Right (+1) rotates -Y (turn right)
+	var yaw_change = -delta_mouse.x * mouse_sensitivity - arrow_look.x * arrow_look_speed * delta
+	rotate_y(yaw_change)
+	
 	if camera:
-		camera.rotate_x(-delta_mouse.y * mouse_sensitivity)
+		# Vertical pitch rotation (mouse delta + arrow keys):
+		# Mouse: -delta_mouse.y * mouse_sensitivity
+		# Arrow: Up (+1) pitches camera up (+X rotation), Down (-1) pitches camera down (-X rotation)
+		var pitch_change = -delta_mouse.y * mouse_sensitivity + arrow_look.y * arrow_look_speed * delta
+		camera.rotate_x(pitch_change)
 		camera.rotation.x = clamp(camera.rotation.x, deg_to_rad(-89), deg_to_rad(89))
+
+func is_facing_interactable() -> bool:
+	if not raycast or not raycast.is_colliding():
+		return false
+	return _find_interactable(raycast.get_collider()) != null
 
 func _handle_movement(delta: float) -> void:
 	var move_vec = InputRouter.get_move_vector()

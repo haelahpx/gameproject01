@@ -13,7 +13,7 @@ config_version=5
 config/name="New Game Project"
 config/description="uto"
 run/main_scene="uid://cqow47bch5ocs"
-config/features=PackedStringArray("4.7", "GL Compatibility")
+config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"
 
 [autoload]
@@ -70,6 +70,10 @@ jump={
 ]
 }
 
+[input_devices]
+
+pointing/emulate_touch_from_mouse=true
+
 [physics]
 
 3d/physics_engine="Jolt Physics"
@@ -77,6 +81,5 @@ jump={
 [rendering]
 
 rendering_device/driver.windows="d3d12"
-renderer/rendering_method="gl_compatibility"
-renderer/rendering_method.mobile="gl_compatibility"
+renderer/rendering_method.mobile="forward_plus"
 textures/vram_compression/import_etc2_astc=true
