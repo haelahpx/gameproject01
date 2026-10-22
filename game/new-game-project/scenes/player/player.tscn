@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://d1w5ccem33kle"]
 
 [ext_resource type="Script" uid="uid://dawgl6firie3p" path="res://scripts/player/player.gd" id="1_8afob"]
+[ext_resource type="PackedScene" path="res://scenes/ui/mobile_controls.tscn" id="2_mbctl"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_bbuaw"]
 radius = 0.30
@@ -33,7 +34,7 @@ expand_margin_top = 10.0
 expand_margin_right = 20.0
 expand_margin_bottom = 10.0
 
-[node name="Player" type="CharacterBody3D" unique_id=1097034514]
+[node name="Player" type="CharacterBody3D" groups=["player"] unique_id=1097034514]
 collision_layer = 2
 script = ExtResource("1_8afob")
 
@@ -125,3 +126,5 @@ text = "Pesan Informasi"
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
+
+[node name="MobileControls" parent="HUD" instance=ExtResource("2_mbctl")]

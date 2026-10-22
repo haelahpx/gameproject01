@@ -4,5 +4,8 @@
 
 # Blender backup files
 *.blend1
-*.blend@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
 
