@@ -1,0 +1,317 @@
+[gd_scene format=3 uid="uid://campus_compound_prefab"]
+
+[ext_resource type="PackedScene" uid="uid://btbal1sk4718v" path="res://assets/models/campus_area.glb" id="1_model"]
+[ext_resource type="Script" path="res://scripts/core/interactive_door.gd" id="2_door"]
+[ext_resource type="Script" path="res://scripts/core/interactive_prop.gd" id="3_prop"]
+[ext_resource type="Script" path="res://scripts/core/elevator_controller.gd" id="4_elevator"]
+[ext_resource type="Script" path="res://scripts/core/elevator_button.gd" id="5_elev_btn"]
+[ext_resource type="Script" path="res://scripts/world/traffic_light_controller.gd" id="6_traffic_light"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_door_wood"]
+albedo_color = Color(0.38, 0.22, 0.12, 1)
+roughness = 0.5
+
+[sub_resource type="StandardMaterial3D" id="Mat_door_glass"]
+transparency = 1
+albedo_color = Color(0.32, 0.58, 0.80, 0.4)
+roughness = 0.05
+
+[sub_resource type="StandardMaterial3D" id="Mat_door_handle"]
+albedo_color = Color(0.85, 0.85, 0.88, 1)
+metallic = 0.8
+roughness = 0.2
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_door_leaf"]
+size = Vector3(1.05, 2.4, 0.08)
+
+[sub_resource type="BoxMesh" id="BoxMesh_door_leaf"]
+material = SubResource("Mat_door_wood")
+size = Vector3(1.05, 2.4, 0.08)
+
+[sub_resource type="BoxMesh" id="BoxMesh_door_glass"]
+material = SubResource("Mat_door_glass")
+size = Vector3(0.65, 1.1, 0.09)
+
+[sub_resource type="BoxMesh" id="BoxMesh_door_handle"]
+material = SubResource("Mat_door_handle")
+size = Vector3(0.04, 0.24, 0.06)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_porch_floor"]
+size = Vector3(6.8, 0.40, 2.7)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_front_stairs_wedge"]
+points = PackedVector3Array(-3.8, 0, 5.35, 3.8, 0, 5.35, -3.8, 0.4, 3.75, 3.8, 0.4, 3.75, -3.8, 0, 3.75, 3.8, 0, 3.75)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_interior_stairs_wedge"]
+points = PackedVector3Array(2.68, 0.4, -13.80, 2.68, 0.4, -12.10, -3.32, 4.40, -13.80, -3.32, 4.40, -12.10, -3.32, 0.4, -13.80, -3.32, 0.4, -12.10)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_f2_left_wing"]
+size = Vector3(15.0, 0.25, 10.0)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_f2_left_fwd"]
+size = Vector3(8.0, 0.25, 10.0)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_f2_right_wing"]
+size = Vector3(15.0, 0.25, 10.0)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_f2_right_fwd"]
+size = Vector3(8.0, 0.25, 10.0)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_f2_north_bridge"]
+size = Vector3(12.0, 0.25, 4.0)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_f2_south_bridge"]
+size = Vector3(12.0, 0.25, 3.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_f2_west_landing"]
+size = Vector3(2.8, 0.25, 4.0)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_f2_east_walk"]
+size = Vector3(2.8, 0.25, 6.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_atrium_rail_ns"]
+size = Vector3(6.4, 1.0, 0.1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_atrium_rail_north"]
+size = Vector3(3.92, 1.0, 0.1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_atrium_rail_west"]
+size = Vector3(0.1, 1.0, 6.0)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_atrium_rail_east"]
+size = Vector3(0.1, 1.0, 4.0)
+
+[sub_resource type="StandardMaterial3D" id="Mat_halte_sign"]
+albedo_color = Color(0.15, 0.35, 0.65, 1)
+roughness = 0.4
+
+[sub_resource type="BoxMesh" id="BoxMesh_halte_sign"]
+material = SubResource("Mat_halte_sign")
+size = Vector3(3.2, 0.6, 0.08)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_elev_cabin_floor"]
+size = Vector3(1.8, 0.15, 1.8)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_elev_button"]
+size = Vector3(0.3, 0.4, 0.3)
+
+[sub_resource type="StandardMaterial3D" id="Mat_elev_btn"]
+albedo_color = Color(0.1, 0.4, 0.75, 1)
+roughness = 0.3
+
+[sub_resource type="BoxMesh" id="BoxMesh_elev_btn"]
+material = SubResource("Mat_elev_btn")
+size = Vector3(0.2, 0.35, 0.1)
+
+[node name="CampusCompound" type="Node3D"]
+
+[node name="CampusModel" parent="." instance=ExtResource("1_model")]
+
+[node name="PorchFloorCollision" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.20, 2.45)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="PorchFloorCollision"]
+shape = SubResource("BoxShape3D_porch_floor")
+
+[node name="StairsWalkRamp" type="StaticBody3D" parent="."]
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StairsWalkRamp"]
+shape = SubResource("ConvexPolygonShape3D_front_stairs_wedge")
+
+[node name="InteriorStairsWalkRamp" type="StaticBody3D" parent="."]
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InteriorStairsWalkRamp"]
+shape = SubResource("ConvexPolygonShape3D_interior_stairs_wedge")
+
+[node name="Floor2Collision" type="StaticBody3D" parent="."]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Col_F2_NorthBridge" type="CollisionShape3D" parent="Floor2Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.275, -11.0)
+shape = SubResource("BoxShape3D_f2_north_bridge")
+
+[node name="Col_F2_SouthBridge" type="CollisionShape3D" parent="Floor2Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.275, -0.75)
+shape = SubResource("BoxShape3D_f2_south_bridge")
+
+[node name="Col_F2_WestLanding" type="CollisionShape3D" parent="Floor2Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.6, 4.275, -11.0)
+shape = SubResource("BoxShape3D_f2_west_landing")
+
+[node name="Col_F2_EastWalk" type="CollisionShape3D" parent="Floor2Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.6, 4.275, -5.75)
+shape = SubResource("BoxShape3D_f2_east_walk")
+
+[node name="Col_F2_LeftWing" type="CollisionShape3D" parent="Floor2Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.5, 4.275, -8.0)
+shape = SubResource("BoxShape3D_f2_left_wing")
+
+[node name="Col_F2_LeftFwd" type="CollisionShape3D" parent="Floor2Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.0, 4.275, 2.0)
+shape = SubResource("BoxShape3D_f2_left_fwd")
+
+[node name="Col_F2_RightWing" type="CollisionShape3D" parent="Floor2Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, 4.275, -8.0)
+shape = SubResource("BoxShape3D_f2_right_wing")
+
+[node name="Col_F2_RightFwd" type="CollisionShape3D" parent="Floor2Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.0, 4.275, 2.0)
+shape = SubResource("BoxShape3D_f2_right_fwd")
+
+[node name="Col_Atrium_Rail_N" type="CollisionShape3D" parent="Floor2Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.90, -10.0)
+shape = SubResource("BoxShape3D_atrium_rail_ns")
+
+[node name="Col_Atrium_Rail_S" type="CollisionShape3D" parent="Floor2Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.90, -2.5)
+shape = SubResource("BoxShape3D_atrium_rail_ns")
+
+[node name="Col_Atrium_Rail_W" type="CollisionShape3D" parent="Floor2Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.2, 4.90, -5.5)
+shape = SubResource("BoxShape3D_atrium_rail_west")
+
+[node name="Col_Atrium_Rail_E" type="CollisionShape3D" parent="Floor2Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.2, 4.90, -4.5)
+shape = SubResource("BoxShape3D_atrium_rail_east")
+
+[node name="DoorHingeFrontLeft" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.1, 0.40, 1.0)
+
+[node name="CampusFrontDoorL" type="StaticBody3D" parent="DoorHingeFrontLeft" node_paths=PackedStringArray("door_pivot")]
+script = ExtResource("2_door")
+open_rotation_y = -95.0
+close_rotation_y = 0.0
+door_pivot = NodePath("..")
+open_prompt = "Buka Pintu Sekolah"
+close_prompt = "Tutup Pintu Sekolah"
+door_name = "Pintu Kiri"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DoorHingeFrontLeft/CampusFrontDoorL"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.55, 1.20, 0)
+shape = SubResource("BoxShape3D_door_leaf")
+
+[node name="MeshLeaf" type="MeshInstance3D" parent="DoorHingeFrontLeft/CampusFrontDoorL"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.55, 1.20, 0)
+mesh = SubResource("BoxMesh_door_leaf")
+
+[node name="MeshGlass" type="MeshInstance3D" parent="DoorHingeFrontLeft/CampusFrontDoorL"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.55, 1.45, 0)
+mesh = SubResource("BoxMesh_door_glass")
+
+[node name="MeshHandle" type="MeshInstance3D" parent="DoorHingeFrontLeft/CampusFrontDoorL"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.95, 1.05, 0.06)
+mesh = SubResource("BoxMesh_door_handle")
+
+[node name="DoorHingeFrontRight" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.1, 0.40, 1.0)
+
+[node name="CampusFrontDoorR" type="StaticBody3D" parent="DoorHingeFrontRight" node_paths=PackedStringArray("door_pivot")]
+script = ExtResource("2_door")
+open_rotation_y = 95.0
+close_rotation_y = 0.0
+door_pivot = NodePath("..")
+open_prompt = "Buka Pintu Sekolah"
+close_prompt = "Tutup Pintu Sekolah"
+door_name = "Pintu Kanan"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DoorHingeFrontRight/CampusFrontDoorR"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.55, 1.20, 0)
+shape = SubResource("BoxShape3D_door_leaf")
+
+[node name="MeshLeaf" type="MeshInstance3D" parent="DoorHingeFrontRight/CampusFrontDoorR"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.55, 1.20, 0)
+mesh = SubResource("BoxMesh_door_leaf")
+
+[node name="MeshGlass" type="MeshInstance3D" parent="DoorHingeFrontRight/CampusFrontDoorR"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.55, 1.45, 0)
+mesh = SubResource("BoxMesh_door_glass")
+
+[node name="MeshHandle" type="MeshInstance3D" parent="DoorHingeFrontRight/CampusFrontDoorR"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.95, 1.05, 0.06)
+mesh = SubResource("BoxMesh_door_handle")
+
+[node name="Elevator" type="Node3D" parent="." node_paths=PackedStringArray("cabin_body", "cabin_panel", "call_button_f1", "call_button_f2")]
+script = ExtResource("4_elevator")
+cabin_body = NodePath("Cabin")
+cabin_panel = NodePath("Cabin/CabinPanel")
+call_button_f1 = NodePath("CallButtonF1")
+call_button_f2 = NodePath("CallButtonF2")
+
+[node name="Cabin" type="AnimatableBody3D" parent="Elevator"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.38, 0.40, -12.95)
+sync_to_physics = true
+
+[node name="FloorCollision" type="CollisionShape3D" parent="Elevator/Cabin"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.075, 0)
+shape = SubResource("BoxShape3D_elev_cabin_floor")
+
+[node name="CabinLight" type="OmniLight3D" parent="Elevator/Cabin"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.0, 0)
+light_color = Color(1, 0.95, 0.85, 1)
+light_energy = 0.8
+omni_range = 4.0
+
+[node name="CabinPanel" type="StaticBody3D" parent="Elevator/Cabin" node_paths=PackedStringArray("controller")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.75, 1.1, -0.3)
+collision_layer = 1
+collision_mask = 0
+script = ExtResource("5_elev_btn")
+controller = NodePath("../..")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Elevator/Cabin/CabinPanel"]
+shape = SubResource("BoxShape3D_elev_button")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Elevator/Cabin/CabinPanel"]
+mesh = SubResource("BoxMesh_elev_btn")
+
+[node name="CallButtonF1" type="StaticBody3D" parent="Elevator" node_paths=PackedStringArray("controller")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.23, 1.60, -11.90)
+collision_layer = 1
+collision_mask = 0
+script = ExtResource("5_elev_btn")
+button_type = 1
+controller = NodePath("..")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Elevator/CallButtonF1"]
+shape = SubResource("BoxShape3D_elev_button")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Elevator/CallButtonF1"]
+mesh = SubResource("BoxMesh_elev_btn")
+
+[node name="CallButtonF2" type="StaticBody3D" parent="Elevator" node_paths=PackedStringArray("controller")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.23, 5.60, -11.90)
+collision_layer = 1
+collision_mask = 0
+script = ExtResource("5_elev_btn")
+button_type = 2
+controller = NodePath("..")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Elevator/CallButtonF2"]
+shape = SubResource("BoxShape3D_elev_button")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Elevator/CallButtonF2"]
+mesh = SubResource("BoxMesh_elev_btn")
+
+[node name="BusHalteSign" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.0, 1.2, 36.5)
+
+[node name="HalteSignBoard" type="MeshInstance3D" parent="BusHalteSign"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, -0.7)
+mesh = SubResource("BoxMesh_halte_sign")
+
+[node name="Label3D" type="Label3D" parent="BusHalteSign/HalteSignBoard"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.05)
+text = "HALTE BUS KAMPUS\nUniversitas Negeri"
+font_size = 28
+outline_size = 6
+pixel_size = 0.005
+
+[node name="TrafficLightController" type="Node3D" parent="."]
+script = ExtResource("6_traffic_light")

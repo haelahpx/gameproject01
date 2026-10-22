@@ -1576,13 +1576,7 @@ def build_all():
     add_angled_bar("Kabel_Listrik_1", (-12.0, 2.1, 6.6), (8.30, 1.75, 6.6), 0.02, 0.02, "kost_dark_grey", "GangInfrastructure")
     add_angled_bar("Kabel_Listrik_2", (-12.0, 2.2, 6.4), (8.30, 1.85, 6.4), 0.02, 0.02, "kost_dark_grey", "GangInfrastructure")
 
-    # Campus Teleport Gate
-    add_box("Teleport_Pole_L-col", (20.0, 2.0, 1.8), (0.2, 0.2, 3.6), "kost_concrete_grey", "TeleportArea")
-    add_box("Teleport_Pole_R-col", (20.0, -2.0, 1.8), (0.2, 0.2, 3.6), "kost_concrete_grey", "TeleportArea")
-    add_box("Teleport_Beam-col", (20.0, 0.0, 3.5), (0.25, 4.2, 0.3), "kost_concrete_grey", "TeleportArea")
-    add_box("Teleport_Portal_Visual", (20.0, 0.0, 1.7), (0.06, 3.6, 3.2), "teleport_cyan", "TeleportArea")
-    add_box("Teleport_Sign_Board", (20.0, 0.0, 3.9), (0.08, 3.2, 0.5), "pvc_blue", "TeleportArea")
-    add_angled_bar("Teleport_Chain", (20.0, -1.8, 0.6), (20.0, 1.8, 0.6), 0.04, 0.04, "kost_railing_metal", "TeleportArea")
+    # Campus Teleport Gate removed: Kampung and Campus are now integrated into 1 unified continuous world!
 
     # ─── 14. KAMPUNG EXTENSION (PERTIGAAN, BELOKAN, & CONNECTING ROADS) ───
     # Ground extension for West & South expansion
@@ -2000,6 +1994,23 @@ def build_all():
     add_angled_bar("Kabel_P2", (-32.0, 2.30, 6.6), (-50.0, 2.20, 6.6), 0.02, 0.02, "kost_dark_grey", "GangInfrastructure")
     add_angled_bar("Kabel_P3", (-32.0, 2.30, 6.4), (-30.1, -18.0, 6.4), 0.02, 0.02, "kost_dark_grey", "GangInfrastructure")
     add_angled_bar("Kabel_P4", (-30.1, -18.0, 6.4), (-40.0, -20.1, 6.4), 0.02, 0.02, "kost_dark_grey", "GangInfrastructure")
+
+    # ─── 19.5 INTEGRATE CAMPUS AREA (ONE UNIFIED WORLD) ───
+    campus_blend = "/home/haelahpx/Documents/GitHub/gameproject01/game/new-game-project/assets/models/campus_area.blend"
+    if os.path.exists(campus_blend):
+        campus_col = bpy.data.collections.get("CampusArea")
+        if not campus_col:
+            campus_col = bpy.data.collections.new("CampusArea")
+            bpy.context.scene.collection.children.link(campus_col)
+        with bpy.data.libraries.load(campus_blend) as (data_from, data_to):
+            data_to.objects = data_from.objects
+        offset = mathutils.Vector((180.0, 42.0, 0.0))
+        for c_obj in data_to.objects:
+            campus_col.objects.link(c_obj)
+            c_obj.location += offset
+        # Big connected grass base for Campus & connection area (left empty on top)
+        add_box("Campus_Base_Grass_Connected-col", (-40.0, -115.0, -0.12), (150.0, 150.0, 0.15), "grass_lawn", "CampusArea")
+        print(f"Integrated {len(data_to.objects)} Campus Area objects with big connected grass base.")
 
     # ─── 20. SAVE AND EXPORT GLB ───
     blend_path = "/home/haelahpx/Documents/GitHub/gameproject01/game/new-game-project/assets/models/kampung_kos_scene.blend"

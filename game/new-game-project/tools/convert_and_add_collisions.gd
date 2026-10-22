@@ -78,6 +78,8 @@ func _init():
 
 	var save_err = ResourceSaver.save(packed, "res://assets/models/kampung_kos_gang_model.tscn")
 	print("Saved to kampung_kos_gang_model.tscn! Result: ", save_err)
+	var save_opt_err = ResourceSaver.save(packed, "res://assets/models/kampung_kos_gang_model_optimized.tscn")
+	print("Saved to kampung_kos_gang_model_optimized.tscn! Result: ", save_opt_err)
 	quit()
 
 func _set_owner_recursive(node: Node, root_node: Node):
