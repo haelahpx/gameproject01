@@ -94,6 +94,9 @@ func is_interact_just_pressed() -> bool:
 	virtual_interact = false
 	return pressed
 
+func is_interact_f_just_pressed() -> bool:
+	return Input.is_action_just_pressed("interact_f")
+
 func is_jump_just_pressed() -> bool:
 	var pressed = Input.is_action_just_pressed("jump") or virtual_jump
 	virtual_jump = false

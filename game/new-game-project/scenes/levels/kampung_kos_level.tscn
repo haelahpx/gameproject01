@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://scripts/core/interactive_prop.gd" id="4_prop"]
 [ext_resource type="Script" path="res://scripts/core/scene_teleport_trigger.gd" id="5_teleport"]
 [ext_resource type="Script" path="res://scripts/core/interactive_bed.gd" id="6_bed"]
+[ext_resource type="Script" path="res://scripts/core/interactive_teleport.gd" id="7_teleport_interact"]
 [ext_resource type="Script" path="res://scripts/core/interactive_sliding_gate.gd" id="7_gate"]
 
 
@@ -134,7 +135,31 @@ size = Vector3(0.6, 0.6, 0.6)
 size = Vector3(2.5, 1.5, 1.2)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_teleport"]
-size = Vector3(3.5, 3.0, 4.0)
+size = Vector3(6.0, 4.0, 8.0)
+
+[sub_resource type="StandardMaterial3D" id="Mat_portal_glow"]
+transparency = 1
+albedo_color = Color(0.2, 0.7, 1.0, 0.45)
+emission_enabled = true
+emission = Color(0.2, 0.65, 0.95, 1)
+emission_energy_multiplier = 2.0
+
+[sub_resource type="BoxMesh" id="BoxMesh_portal_glow"]
+material = SubResource("Mat_portal_glow")
+size = Vector3(5.0, 0.05, 5.0)
+
+[sub_resource type="StandardMaterial3D" id="Mat_portal_arch"]
+albedo_color = Color(0.2, 0.35, 0.55, 1)
+metallic = 0.4
+roughness = 0.3
+
+[sub_resource type="BoxMesh" id="BoxMesh_portal_pillar"]
+material = SubResource("Mat_portal_arch")
+size = Vector3(0.35, 3.8, 0.35)
+
+[sub_resource type="BoxMesh" id="BoxMesh_portal_beam"]
+material = SubResource("Mat_portal_arch")
+size = Vector3(0.4, 0.5, 5.4)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_landing"]
 size = Vector3(1.20, 0.10, 0.80)
@@ -374,9 +399,10 @@ shape = SubResource("BoxShape3D_kloset")
 
 [node name="Interact_Motor" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 0.7, -6.75)
-script = ExtResource("4_prop")
-inspection_text = "Motor matic terparkir rapi sejajar garis parkir di halaman kos. Siap digunakan buat berangkat kuliah!"
-prompt_message = "Periksa Sepeda Motor"
+script = ExtResource("7_teleport_interact")
+target_scene_path = "res://scenes/levels/campus_area.tscn"
+prompt_message = "Naik Motor Berangkat ke Kampus"
+travel_message = "Menyalakan motor matic dan berangkat menuju area kampus..."
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_Motor"]
 shape = SubResource("BoxShape3D_motor")
@@ -517,14 +543,40 @@ prompt_message = "Buka Pintu Kamar 12"
 shape = SubResource("BoxShape3D_locked_door")
 
 [node name="SceneTeleportTrigger" type="Area3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 1, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.5, 1.5, 0)
+collision_layer = 0
+collision_mask = 3
 script = ExtResource("5_teleport")
 target_scene_path = "res://scenes/levels/campus_area.tscn"
-fade_duration = 0.8
+fade_duration = 0.6
+transition_label = "Berangkat ke Area Kampus..."
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="SceneTeleportTrigger"]
 shape = SubResource("BoxShape3D_teleport")
 
+[node name="PortalGlowMarker" type="MeshInstance3D" parent="SceneTeleportTrigger"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.45, 0)
+mesh = SubResource("BoxMesh_portal_glow")
+
+[node name="PillarL" type="MeshInstance3D" parent="SceneTeleportTrigger"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, -2.6)
+mesh = SubResource("BoxMesh_portal_pillar")
+
+[node name="PillarR" type="MeshInstance3D" parent="SceneTeleportTrigger"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 2.6)
+mesh = SubResource("BoxMesh_portal_pillar")
+
+[node name="ArchBeam" type="MeshInstance3D" parent="SceneTeleportTrigger"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1, 0)
+mesh = SubResource("BoxMesh_portal_beam")
+
+[node name="Interact_Sign_To_Campus" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.0, 1.0, -2.0)
+script = ExtResource("4_prop")
+inspection_text = "Plang Arah: '-> Menuju Kampus Universitas'. Lewati jalan keluar gang ini untuk berangkat ke area kampus!"
+prompt_message = "Baca Plang Arah ke Kampus"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interact_Sign_To_Campus"]
 [node name="SlidingGate_House1" type="StaticBody3D" parent="." node_paths=PackedStringArray("gate_body")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6, 0.5, 2.22)
 script = ExtResource("7_gate")
