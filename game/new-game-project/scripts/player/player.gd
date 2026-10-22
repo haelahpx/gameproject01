@@ -22,10 +22,12 @@ var default_cam_y: float = 1.5
 var _notice_timer: float = 0.0
 
 func _ready() -> void:
+	add_to_group("player")
+	InputRouter.capture_mouse(true)
 	if not InputRouter.touch_controls_active:
 		InputRouter.capture_mouse(true)
 	floor_max_angle = deg_to_rad(50.0)
-	floor_snap_length = 0.35
+	floor_snap_length = 0.45
 	floor_constant_speed = true
 	if camera:
 		default_cam_y = camera.position.y
