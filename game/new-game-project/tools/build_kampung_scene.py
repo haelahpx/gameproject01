@@ -512,7 +512,7 @@ def build_all():
         actual_len = total_len / n_blocks
         for i in range(n_blocks):
             bx = x_start + (i + 0.5) * actual_len
-            color_idx = int(round(bx / 1.0))
+            color_idx = int(math.floor(bx))
             cmat = "curb_black" if color_idx % 2 == 0 else "curb_white"
             add_box(f"{prefix}_{i}_{bx:.2f}-col", (bx, y_pos, 0.05), (actual_len, 0.125, 0.10), cmat, "GangRoad")
 
@@ -1590,16 +1590,53 @@ def build_all():
 
     # Main Road West Extension (Along Y=0 from X=-30.0 to X=-60.0)
     add_box("Gang_Road_West_Ext-col", (-46.0, 0, -0.04), (28.0, 4.0, 0.08), "road_asphalt", "GangRoad")
-    for xi in range(-58, -33, 3):
+    for xi in range(-58, -25, 3):
         add_box(f"Road_Ext_Stripe_{xi}", (float(xi), 0.0, 0.003), (1.5, 0.12, 0.005), "road_marking_white", "GangRoad")
 
-    # Branch Road South (Pertigaan at X=-32.0 running South to Y=-22.0)
-    add_box("Gang_Road_South-col", (-32.0, -12.0, -0.04), (3.8, 20.0, 0.08), "road_asphalt", "GangRoad")
-    for yi in range(-5, -20, -3):
+    # Branch Road South (Pertigaan at X=-32.0 running South to Y=-23.9)
+    add_box("Gang_Road_South-col", (-32.0, -12.95, -0.04), (3.8, 21.9, 0.08), "road_asphalt", "GangRoad")
+    for yi in range(-5, -18, -3):
         add_box(f"Road_South_Stripe_{yi}", (-32.0, float(yi), 0.003), (0.12, 1.5, 0.005), "road_marking_white", "GangRoad")
+    add_box("Road_South_Stripe_Approach", (-32.0, -19.3, 0.003), (0.12, 1.1, 0.005), "road_marking_white", "GangRoad")
 
-    # Turned Gang Alley (Belokan at Y=-22.0 turning West to X=-58.0)
-    add_box("Gang_Road_Turn_West-col", (-45.0, -22.0, -0.04), (26.0, 3.8, 0.08), "road_asphalt_worn", "GangRoad")
+    # Smooth circular curved stripes along the L-turn arc (Inner corner at -33.95, -20.05, R=1.95m)
+    def add_curved_stripe(name, theta_start_deg, theta_end_deg, steps=8):
+        mesh = bpy.data.meshes.new(f"{name}_Mesh")
+        obj = bpy.data.objects.new(name, mesh)
+        bm = bmesh.new()
+        xc, yc, R, w, z = -33.95, -20.05, 1.95, 0.12, 0.003
+        t_start = math.radians(theta_start_deg)
+        t_end = math.radians(theta_end_deg)
+        verts_inner = []
+        verts_outer = []
+        for step in range(steps + 1):
+            frac = step / steps
+            th = t_start + frac * (t_end - t_start)
+            cos_t, sin_t = math.cos(th), math.sin(th)
+            vi = bm.verts.new((xc + (R - w/2.0) * cos_t, yc - (R - w/2.0) * sin_t, z))
+            vo = bm.verts.new((xc + (R + w/2.0) * cos_t, yc - (R + w/2.0) * sin_t, z))
+            verts_inner.append(vi)
+            verts_outer.append(vo)
+        for step in range(steps):
+            bm.faces.new([verts_inner[step], verts_outer[step], verts_outer[step + 1], verts_inner[step + 1]])
+        bm.to_mesh(mesh)
+        bm.free()
+        for poly in mesh.polygons:
+            poly.use_smooth = False
+        mat = bpy.data.materials.get("road_marking_white")
+        if mat:
+            obj.data.materials.append(mat)
+        col = get_col("GangRoad")
+        col.objects.link(obj)
+        return obj
+
+    add_curved_stripe("Road_Turn_Curve_1", 10.0, 42.0, steps=8)
+    add_curved_stripe("Road_Turn_Curve_2", 48.0, 80.0, steps=8)
+
+    # Turned Gang Alley (Belokan at Y=-22.0 turning West to X=-58.0, meeting Gang Selatan at X=-30.1)
+    add_box("Gang_Road_Turn_West-col", (-44.05, -22.0, -0.04), (27.9, 3.8, 0.08), "road_asphalt", "GangRoad")
+    for xi in range(-35, -57, -3):
+        add_box(f"Road_Turn_Stripe_{xi}", (float(xi), -22.0, 0.003), (1.5, 0.12, 0.005), "road_marking_white", "GangRoad")
 
     # Road Patches
     ext_patches = [
@@ -1623,17 +1660,18 @@ def build_all():
         actual_len = total_len / n_blocks
         for i in range(n_blocks):
             by = y_min + (i + 0.5) * actual_len
-            color_idx = int(round(by / 1.0))
+            color_idx = int(math.floor(by))
             cmat = "curb_black" if color_idx % 2 == 0 else "curb_white"
             add_box(f"{prefix}_{i}_{by:.2f}-col", (x_pos, by, 0.05), (0.125, actual_len, 0.10), cmat, "GangRoad")
 
-    # Extended Road Curbs
-    build_curb_segment("Curb_N_Ext", -60.0, -24.8, 2.0375)
-    build_curb_segment("Curb_S_Ext", -60.0, -34.0, -2.0375)
-    build_curb_segment_y("Curb_GS_East", -22.0, -2.0, -30.05)
-    build_curb_segment_y("Curb_GS_West", -20.1, -2.0, -33.95)
-    build_curb_segment("Curb_GB_North", -56.0, -33.95, -20.05)
+    # Extended Road Curbs (Seamlessly connected, zero duplicate overlaps)
+    build_curb_segment("Curb_N_Ext", -60.0, -30.0, 2.0375)
+    build_curb_segment("Curb_S_Ext", -60.0, -33.95, -2.0375)
+    build_curb_segment_y("Curb_GS_West", -20.05, -2.0, -33.95)
+    build_curb_segment("Curb_GB_North", -58.0, -33.95, -20.05)
+    build_curb_segment_y("Curb_GS_East", -23.95, -2.0, -30.05)
     build_curb_segment("Curb_GB_South", -38.0, -30.05, -23.95)
+    build_curb_segment("Curb_GB_South_W", -58.0, -45.0, -23.95)
 
     # ─── 15. POS RONDA SISKAMLING & CERMIN CEMBUNG (PERTIGAAN CORNER X=-32, Y=4.0) ───
     pr_x, pr_y = -32.0, 4.0
@@ -1679,10 +1717,10 @@ def build_all():
     create_3d_text("TambalBan_Text", "TAMBAL BAN & ISI ANGIN", (tb_x - 0.95, tb_y, 2.2), (math.radians(90), 0, math.radians(-90)), size=0.10, extrude=0.02, mat_name="dish_telur_balado", col_name="GangInfrastructure")
 
     # ─── 17. EXTREMELY POOR STARTER KOST COMPOUND (KOS PETAKAN SENG 1-LANTAI) ───
-    # Courtyard ground with rainwater puddle
-    add_box("PoorKost_Yard_Ground-col", (-44.0, -26.0, 0.02), (15.0, 6.5, 0.06), "road_asphalt_worn", "PoorKost")
-    add_box("PoorKost_Puddle_1", (-46.5, -25.5, 0.052), (2.4, 1.6, 0.005), "wc_water", "PoorKost")
-    add_box("PoorKost_Mud_Edge", (-46.5, -25.5, 0.051), (2.8, 1.9, 0.004), "wall_worn_concrete_dark", "PoorKost")
+    # Courtyard ground with rainwater puddle (Positioned cleanly south of the road curb)
+    add_box("PoorKost_Yard_Ground-col", (-44.0, -25.60, 0.01), (15.0, 3.10, 0.04), "road_asphalt_worn", "PoorKost")
+    add_box("PoorKost_Puddle_1", (-46.5, -25.5, 0.032), (2.4, 1.4, 0.005), "wc_water", "PoorKost")
+    add_box("PoorKost_Mud_Edge", (-46.5, -25.5, 0.031), (2.8, 1.7, 0.004), "wall_worn_concrete_dark", "PoorKost")
 
     # Raised Front Veranda (Teras depan kos)
     add_box("PoorKost_Front_Veranda-col", (-44.0, -27.15, 0.06), (12.4, 0.90, 0.12), "curb_concrete", "PoorKost")
